@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { buildLogoutUrl } from "./auth";
+import logo from "./assets/go.png";
 import "./App.css";
 
+type Theme = "light" | "dark";
 
 type ShortenResponse = {
   code: string;
@@ -52,6 +54,10 @@ async function readApiResponse(response: Response) {
 function App() {
   const auth = useAuth();
 
+  const [theme, setTheme] = useState<Theme>(() => {
+    return (localStorage.getItem("go-theme") as Theme) || "light";
+  });
+
   const [guestUrl, setGuestUrl] = useState("");
   const [userUrl, setUserUrl] = useState("");
   const [customCode, setCustomCode] = useState("");
@@ -70,6 +76,30 @@ function App() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
   const token = auth.user?.id_token;
+  const isSignedIn = auth.isAuthenticated;
+
+  const stats = useMemo(() => {
+    const totalClicks = links.reduce((sum, link) => sum + (link.clickCount || 0), 0);
+    const activeLinks = links.filter((link) => link.status === "active").length;
+    const inactiveLinks = links.filter((link) => link.status !== "active").length;
+
+    return {
+      totalLinks: links.length,
+      totalClicks,
+      activeLinks,
+      inactiveLinks,
+    };
+  }, [links]);
+
+  useEffect(() => {
+    localStorage.setItem("go-theme", theme);
+  }, [theme]);
+
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      loadLinks();
+    }
+  }, [auth.isAuthenticated]);
 
   async function apiCall(path: string, options: RequestInit = {}) {
     const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -135,6 +165,8 @@ function App() {
     setCreatedLink(null);
 
     try {
+      const normalizedCustomCode = customCode.trim().toLowerCase();
+
       const data = (await apiCall("/user/shorten", {
         method: "POST",
         headers: {
@@ -142,7 +174,7 @@ function App() {
         },
         body: JSON.stringify({
           url: userUrl,
-          customCode: customCode || undefined,
+          customCode: normalizedCustomCode || undefined,
         }),
       })) as ShortenResponse;
 
@@ -190,7 +222,7 @@ function App() {
     setMessage("");
 
     try {
-      const data = (await apiCall(`/links/${code}/clicks`, {
+      const data = (await apiCall(`/links/${code.toLowerCase()}/clicks`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -210,7 +242,7 @@ function App() {
     setMessage("");
 
     try {
-      await apiCall(`/links/${code}`, {
+      await apiCall(`/links/${code.toLowerCase()}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -222,9 +254,7 @@ function App() {
 
       setEditingCode("");
       setEditingUrl("");
-
       await loadLinks();
-
       showSuccess("Link destination updated.");
     } catch (error) {
       showError(error instanceof Error ? error.message : "Failed to update link");
@@ -240,18 +270,15 @@ function App() {
     setMessage("");
 
     try {
-      await apiCall(`/links/${code}`, {
+      await apiCall(`/links/${code.toLowerCase()}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          status,
-        }),
+        body: JSON.stringify({ status }),
       });
 
       await loadLinks();
-
       showSuccess(status === "active" ? "Link reactivated." : "Link deactivated.");
     } catch (error) {
       showError(error instanceof Error ? error.message : "Failed to update status");
@@ -263,8 +290,10 @@ function App() {
   async function deleteLink(code: string) {
     if (!token) return;
 
+    const normalizedCode = code.toLowerCase();
+
     const confirmed = window.confirm(
-      `Permanently delete ${code}? This will remove it from your dashboard and delete its click history.`
+      `Permanently delete ${normalizedCode}? This will remove it from your dashboard and delete its click history.`
     );
 
     if (!confirmed) return;
@@ -273,7 +302,7 @@ function App() {
     setMessage("");
 
     try {
-      await apiCall(`/links/${code}`, {
+      await apiCall(`/links/${normalizedCode}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -281,10 +310,10 @@ function App() {
       });
 
       setLinks((currentLinks) =>
-        currentLinks.filter((link) => link.code !== code)
+        currentLinks.filter((link) => link.code.toLowerCase() !== normalizedCode)
       );
 
-      if (selectedCode === code) {
+      if (selectedCode.toLowerCase() === normalizedCode) {
         setSelectedCode("");
         setClicks([]);
       }
@@ -298,7 +327,7 @@ function App() {
   }
 
   function startEditing(link: ShortenResponse) {
-    setEditingCode(link.code);
+    setEditingCode(link.code.toLowerCase());
     setEditingUrl(getDestination(link));
   }
 
@@ -325,233 +354,354 @@ function App() {
     });
   }
 
-  useEffect(() => {
-    if (auth.isAuthenticated) {
-      loadLinks();
-    }
-  }, [auth.isAuthenticated]);
+  function copyText(value: string) {
+    navigator.clipboard.writeText(value);
+    showSuccess("Copied to clipboard.");
+  }
 
   return (
-    <main className="page">
-      <section className="hero">
-        <div className="topbar">
-          <div className="badge">Go by 17bytes</div>
+    <main className={`bitlyShell ${theme}`}>
+      <header className="topNav">
+        <a className="brand" href="/">
+          <img src={logo} alt="Go by 17bytes logo" />
+          <span>Go</span>
+        </a>
 
-          <div className="authArea">
-            {auth.isLoading ? (
-              <span className="authText">Checking login...</span>
-            ) : auth.isAuthenticated ? (
-              <>
-                <span className="authText">
-                  {auth.user?.profile.email || "Signed in"}
-                </span>
-                <button className="secondary smallButton" onClick={signOut}>
-                  Sign out
-                </button>
-              </>
-            ) : (
+        <nav className="desktopLinks">
+          <a href="#shorten">Shorten</a>
+          <a href="#features">Features</a>
+          {isSignedIn && <a href="#dashboard">Dashboard</a>}
+        </nav>
+
+        <div className="navActions">
+          <button
+            className="textButton"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            {theme === "light" ? "Dark mode" : "Day mode"}
+          </button>
+
+          {auth.isLoading ? (
+            <span className="navMuted">Checking...</span>
+          ) : isSignedIn ? (
+            <>
+              <span className="accountPill">
+                {auth.user?.profile.email || "Signed in"}
+              </span>
+              <button className="outlineButton navButton" onClick={signOut}>
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="textButton" onClick={() => auth.signinRedirect()}>
+                Log in
+              </button>
               <button
-                className="secondary smallButton"
+                className="primaryButton navButton"
                 onClick={() => auth.signinRedirect()}
               >
-                Sign in
+                Sign up
               </button>
-            )}
+            </>
+          )}
+        </div>
+      </header>
+
+      <section className="hero">
+        <p className="heroLabel">Go by 17bytes</p>
+        <h1>Short links, big results</h1>
+        <p className="heroCopy">
+          A simple link shortener for temporary links, custom aliases, analytics,
+          and full link management.
+        </p>
+
+        <div className="heroCtas">
+          {!isSignedIn && (
+            <button
+              className="primaryButton largeButton"
+              onClick={() => auth.signinRedirect()}
+            >
+              Get started for free
+            </button>
+          )}
+
+          <a className="outlineButton largeButton anchorButton" href="#shorten">
+            Create a link
+          </a>
+        </div>
+      </section>
+
+      <section className="shortenBox" id="shorten">
+        <div className="shortenTabs">
+          <div>
+            <strong>Shorten a long link</strong>
+            <span>No account required for temporary links</span>
           </div>
+
+          <span className="freeBadge">Free</span>
         </div>
 
-        <h1>Short links that move fast.</h1>
+        <div className="guestInput">
+          <input
+            value={guestUrl}
+            onChange={(event) => setGuestUrl(event.target.value)}
+            placeholder="Paste a long URL"
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && guestUrl && !loading) {
+                createTemporaryLink();
+              }
+            }}
+          />
 
-        <p>
-          Create temporary links instantly. Sign in to unlock permanent links,
-          custom aliases, analytics, and full link management.
+          <button
+            className="primaryButton"
+            disabled={!guestUrl || loading}
+            onClick={createTemporaryLink}
+          >
+            {loading ? "Shortening..." : "Shorten"}
+          </button>
+        </div>
+
+        <p className="helperText">
+          Want custom aliases and permanent links? Sign in and use your dashboard.
         </p>
       </section>
 
       {auth.error && (
-        <section className="error">Auth error: {auth.error.message}</section>
+        <section className="messageBox errorBox">
+          Auth error: {auth.error.message}
+        </section>
       )}
 
       {message && (
-        <section className={messageType === "success" ? "noticeBox" : "error"}>
+        <section
+          className={
+            messageType === "success"
+              ? "messageBox successBox"
+              : "messageBox errorBox"
+          }
+        >
           {message}
         </section>
       )}
 
       {createdLink && (
-        <section className="success">
-          <span>Created link</span>
+        <section className="resultBox">
+          <div>
+            <span>Your short link</span>
+            <a href={createdLink.shortUrl} target="_blank" rel="noreferrer">
+              {createdLink.shortUrl}
+            </a>
+            <small>
+              {createdLink.type} · {createdLink.status}
+              {createdLink.expiresAt ? ` · expires ${createdLink.expiresAt}` : ""}
+            </small>
+          </div>
 
-          <a href={createdLink.shortUrl} target="_blank" rel="noreferrer">
-            {createdLink.shortUrl}
-          </a>
-
-          <small>
-            {createdLink.type} · {createdLink.status}
-            {createdLink.expiresAt ? ` · expires ${createdLink.expiresAt}` : ""}
-          </small>
+          <button
+            className="outlineButton"
+            onClick={() => copyText(createdLink.shortUrl)}
+          >
+            Copy
+          </button>
         </section>
       )}
 
-      <section className="cards">
-        <div className="card">
-          <h2>Temporary guest link</h2>
-          <p>No account needed. Good for quick sharing.</p>
+      <section className="features" id="features">
+        <article>
+          <span>01</span>
+          <h3>Create links fast</h3>
+          <p>Shorten long links instantly with a clean, simple interface.</p>
+        </article>
 
-          <div className="stack">
-            <input
-              value={guestUrl}
-              onChange={(event) => setGuestUrl(event.target.value)}
-              placeholder="https://example.com"
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && guestUrl && !loading) {
-                  createTemporaryLink();
-                }
-              }}
-            />
+        <article>
+          <span>02</span>
+          <h3>Use custom aliases</h3>
+          <p>Signed-in users can create branded and memorable permanent links.</p>
+        </article>
 
-            <button disabled={!guestUrl || loading} onClick={createTemporaryLink}>
-              {loading ? "Creating..." : "Create temporary link"}
-            </button>
-          </div>
-        </div>
-
-        <div className="card">
-          <h2>Permanent user link</h2>
-
-          {!auth.isAuthenticated ? (
-            <>
-              <p>Sign in to create permanent links with custom aliases.</p>
-              <button onClick={() => auth.signinRedirect()}>Sign in first</button>
-            </>
-          ) : (
-            <>
-              <p>Create a permanent short link tied to your account.</p>
-
-              <div className="stack">
-                <input
-                  value={userUrl}
-                  onChange={(event) => setUserUrl(event.target.value)}
-                  placeholder="https://example.com"
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" && userUrl && !loading) {
-                      createPermanentLink();
-                    }
-                  }}
-                />
-
-                <input
-                  value={customCode}
-                  onChange={(event) => setCustomCode(event.target.value)}
-                  placeholder="custom alias, optional"
-                />
-
-                <button
-                  disabled={!userUrl || loading}
-                  onClick={createPermanentLink}
-                >
-                  {loading ? "Creating..." : "Create permanent link"}
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        <article>
+          <span>03</span>
+          <h3>Measure every click</h3>
+          <p>Track clicks, referrers, timestamps, and device information.</p>
+        </article>
       </section>
 
-      {auth.isAuthenticated && (
-        <section className="dashboard">
-          <div className="dashboardTop">
+      {isSignedIn && (
+        <>
+          <section className="accountCreator">
             <div>
-              <h2>Your links</h2>
+              <p className="sectionKicker">Your account</p>
+              <h2>Create a permanent link</h2>
               <p>
-                {links.length === 1
-                  ? "1 permanent link"
-                  : `${links.length} permanent links`}
+                Permanent links stay in your dashboard and can be edited,
+                paused, measured, or deleted.
               </p>
             </div>
 
-            <button
-              className="secondary"
-              disabled={dashboardLoading}
-              onClick={loadLinks}
-            >
-              {dashboardLoading ? "Refreshing..." : "Refresh"}
-            </button>
-          </div>
+            <div className="accountForm">
+              <input
+                value={userUrl}
+                onChange={(event) => setUserUrl(event.target.value)}
+                placeholder="Destination URL"
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && userUrl && !loading) {
+                    createPermanentLink();
+                  }
+                }}
+              />
 
-          {dashboardLoading && links.length === 0 ? (
-            <div className="emptyState">Loading your links...</div>
-          ) : links.length === 0 ? (
-            <div className="emptyState">
-              No permanent links yet. Create your first one above.
+              <input
+                value={customCode}
+                onChange={(event) =>
+                  setCustomCode(event.target.value.trim().toLowerCase())
+                }
+                placeholder="Custom alias, optional"
+              />
+
+              <button
+                className="primaryButton"
+                disabled={!userUrl || loading}
+                onClick={createPermanentLink}
+              >
+                {loading ? "Creating..." : "Create link"}
+              </button>
             </div>
-          ) : (
-            <div className="linkList">
-              {links.map((link) => (
-                <article className="linkRow" key={link.code}>
-                  <div className="linkMain">
-                    <div className="linkCode">{link.code}</div>
+          </section>
 
-                    <a href={link.shortUrl} target="_blank" rel="noreferrer">
-                      {link.shortUrl}
-                    </a>
+          <section className="statsGrid">
+            <article>
+              <span>Total links</span>
+              <strong>{stats.totalLinks}</strong>
+            </article>
+            <article>
+              <span>Total clicks</span>
+              <strong>{stats.totalClicks}</strong>
+            </article>
+            <article>
+              <span>Active links</span>
+              <strong>{stats.activeLinks}</strong>
+            </article>
+            <article>
+              <span>Inactive links</span>
+              <strong>{stats.inactiveLinks}</strong>
+            </article>
+          </section>
 
-                    {editingCode === link.code ? (
-                      <div className="editArea">
-                        <input
-                          value={editingUrl}
-                          onChange={(event) => setEditingUrl(event.target.value)}
-                          placeholder="https://new-destination.com"
-                        />
+          <section className="dashboard" id="dashboard">
+            <div className="dashboardHeader">
+              <div>
+                <p className="sectionKicker">Dashboard</p>
+                <h2>Your links</h2>
+              </div>
 
-                        <div className="rowActions">
-                          <button
-                            className="smallButton"
-                            disabled={!editingUrl || loading}
-                            onClick={() => updateLinkUrl(link.code)}
-                          >
-                            Save
-                          </button>
+              <button
+                className="outlineButton"
+                disabled={dashboardLoading}
+                onClick={loadLinks}
+              >
+                {dashboardLoading ? "Refreshing..." : "Refresh"}
+              </button>
+            </div>
 
-                          <button
-                            className="secondary smallButton"
-                            onClick={cancelEditing}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <small>{getDestination(link)}</small>
-                    )}
-                  </div>
+            {dashboardLoading && links.length === 0 ? (
+              <div className="emptyState">Loading your links...</div>
+            ) : links.length === 0 ? (
+              <div className="emptyState">
+                No permanent links yet. Create your first one above.
+              </div>
+            ) : (
+              <div className="linkTable">
+                <div className="tableHead">
+                  <span>Link</span>
+                  <span>Destination</span>
+                  <span>Performance</span>
+                  <span>Actions</span>
+                </div>
 
-                  <div className="linkSide">
-                    <div className="linkMeta">
-                      <span>{link.status}</span>
-                      <span>{link.clickCount} clicks</span>
-                      <span>Created {formatDate(link.createdAt)}</span>
-                      <span>Last click {formatDate(link.lastClickedAt)}</span>
+                {links.map((link) => (
+                  <article className="linkRow" key={link.code}>
+                    <div className="linkCell">
+                      <span
+                        className={
+                          link.status === "active"
+                            ? "statusBadge active"
+                            : "statusBadge inactive"
+                        }
+                      >
+                        {link.status}
+                      </span>
+
+                      <strong>{link.code.toLowerCase()}</strong>
+
+                      <a href={link.shortUrl} target="_blank" rel="noreferrer">
+                        {link.shortUrl}
+                      </a>
                     </div>
 
-                    <div className="rowActions">
+                    <div className="destinationCell">
+                      {editingCode === link.code.toLowerCase() ? (
+                        <div className="editForm">
+                          <input
+                            value={editingUrl}
+                            onChange={(event) => setEditingUrl(event.target.value)}
+                            placeholder="https://new-destination.com"
+                          />
+
+                          <div className="inlineActions">
+                            <button
+                              className="primaryButton smallButton"
+                              disabled={!editingUrl || loading}
+                              onClick={() => updateLinkUrl(link.code)}
+                            >
+                              Save
+                            </button>
+
+                            <button
+                              className="outlineButton smallButton"
+                              onClick={cancelEditing}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p>{getDestination(link)}</p>
+                      )}
+                    </div>
+
+                    <div className="performanceCell">
+                      <strong>{link.clickCount}</strong>
+                      <span>clicks</span>
+                      <small>Last click: {formatDate(link.lastClickedAt)}</small>
+                    </div>
+
+                    <div className="actionCell">
                       <button
-                        className="secondary smallButton"
+                        className="outlineButton smallButton"
+                        onClick={() => copyText(link.shortUrl)}
+                      >
+                        Copy
+                      </button>
+
+                      <button
+                        className="outlineButton smallButton"
                         onClick={() => loadClicks(link.code)}
                       >
                         Analytics
                       </button>
 
                       <button
-                        className="secondary smallButton"
+                        className="outlineButton smallButton"
                         onClick={() => startEditing(link)}
                       >
-                        Edit URL
+                        Edit
                       </button>
 
                       {link.status === "active" ? (
                         <button
-                          className="secondary smallButton"
+                          className="outlineButton smallButton"
                           disabled={loading}
                           onClick={() => updateLinkStatus(link.code, "inactive")}
                         >
@@ -559,7 +709,7 @@ function App() {
                         </button>
                       ) : (
                         <button
-                          className="secondary smallButton"
+                          className="outlineButton smallButton"
                           disabled={loading}
                           onClick={() => updateLinkStatus(link.code, "active")}
                         >
@@ -568,33 +718,31 @@ function App() {
                       )}
 
                       <button
-                        className="danger smallButton"
+                        className="dangerButton smallButton"
                         disabled={loading}
                         onClick={() => deleteLink(link.code)}
                       >
                         Delete
                       </button>
                     </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
-        </section>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
       )}
 
-      {auth.isAuthenticated && selectedCode && (
-        <section className="analytics">
-          <div className="dashboardTop">
+      {isSignedIn && selectedCode && (
+        <section className="analyticsPanel">
+          <div className="dashboardHeader">
             <div>
-              <h2>Analytics</h2>
-              <p>
-                Click history for <strong>{selectedCode}</strong>
-              </p>
+              <p className="sectionKicker">Analytics</p>
+              <h2>{selectedCode.toLowerCase()}</h2>
             </div>
 
             <button
-              className="secondary"
+              className="outlineButton"
               onClick={() => {
                 setSelectedCode("");
                 setClicks([]);
@@ -611,7 +759,7 @@ function App() {
               {clicks.map((click, index) => (
                 <article className="clickRow" key={`${click.clickedAt}-${index}`}>
                   <strong>{formatDate(click.clickedAt)}</strong>
-                  <small>{click.referrer || "Direct / unknown referrer"}</small>
+                  <span>{click.referrer || "Direct / unknown referrer"}</span>
                   <small>{click.userAgent || "Unknown device"}</small>
                 </article>
               ))}
@@ -619,6 +767,11 @@ function App() {
           )}
         </section>
       )}
+
+      <footer className="footer">
+        <strong>Go by 17bytes</strong>
+        <span>Shorten. Share. Measure.</span>
+      </footer>
     </main>
   );
 }
