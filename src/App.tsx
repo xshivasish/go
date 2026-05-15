@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { buildLogoutUrl } from "./auth";
-import logo from "./assets/go.png";
+import logo from "./assets/0.png";
 import "./App.css";
 
 type Theme = "light" | "dark";
@@ -11,20 +11,36 @@ type ShortenResponse = {
   shortUrl: string;
   originalUrl?: string;
   url?: string;
+  title?: string;
+  notes?: string;
   status: string;
   type: string;
   clickCount: number;
   expiresAt: string | null;
   createdAt: string;
+  updatedAt?: string | null;
   lastClickedAt?: string | null;
 };
 
 type ClickItem = {
   code: string;
   clickedAt: string;
-  ip?: string;
-  userAgent?: string;
+  visitorHash?: string;
   referrer?: string;
+  rawReferrer?: string;
+  deviceType?: string;
+  browser?: string;
+  userAgent?: string;
+};
+
+type AnalyticsSummary = {
+  totalClicks: number;
+  uniqueVisitors: number;
+  clicksToday: number;
+  topReferrer: string;
+  referrers: Record<string, number>;
+  devices: Record<string, number>;
+  browsers: Record<string, number>;
 };
 
 type LinksResponse = {
@@ -33,11 +49,23 @@ type LinksResponse = {
 };
 
 type ClicksResponse = {
+  code: string;
   count: number;
+  summary: AnalyticsSummary;
   clicks: ClickItem[];
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const emptySummary: AnalyticsSummary = {
+  totalClicks: 0,
+  uniqueVisitors: 0,
+  clicksToday: 0,
+  topReferrer: "None",
+  referrers: {},
+  devices: {},
+  browsers: {},
+};
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
@@ -59,16 +87,28 @@ function App() {
   });
 
   const [guestUrl, setGuestUrl] = useState("");
+
   const [userUrl, setUserUrl] = useState("");
   const [customCode, setCustomCode] = useState("");
+  const [linkTitle, setLinkTitle] = useState("");
+  const [linkNotes, setLinkNotes] = useState("");
 
   const [createdLink, setCreatedLink] = useState<ShortenResponse | null>(null);
   const [links, setLinks] = useState<ShortenResponse[]>([]);
   const [clicks, setClicks] = useState<ClickItem[]>([]);
+  const [analyticsSummary, setAnalyticsSummary] =
+    useState<AnalyticsSummary>(emptySummary);
 
   const [selectedCode, setSelectedCode] = useState("");
+
+  const [qrCode, setQrCode] = useState("");
+  const [qrSvg, setQrSvg] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
+
   const [editingCode, setEditingCode] = useState("");
   const [editingUrl, setEditingUrl] = useState("");
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingNotes, setEditingNotes] = useState("");
 
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("error");
@@ -119,8 +159,38 @@ function App() {
     return data;
   }
 
+  async function textApiCall(path: string, options: RequestInit = {}) {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: {
+        ...(options.headers || {}),
+      },
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      try {
+        const data = JSON.parse(text);
+        throw new Error(data.message || `Request failed with ${response.status}`);
+      } catch {
+        throw new Error(text || `Request failed with ${response.status}`);
+      }
+    }
+
+    return text;
+  }
+
   function getDestination(link: ShortenResponse) {
     return link.originalUrl || link.url || "";
+  }
+
+  function getTitle(link: ShortenResponse) {
+    return link.title || link.code;
+  }
+
+  function getNotes(link: ShortenResponse) {
+    return link.notes || "";
   }
 
   function showSuccess(text: string) {
@@ -131,6 +201,10 @@ function App() {
   function showError(text: string) {
     setMessageType("error");
     setMessage(text);
+  }
+
+  function entriesFromRecord(record: Record<string, number>) {
+    return Object.entries(record || {}).sort((a, b) => b[1] - a[1]);
   }
 
   async function createTemporaryLink() {
@@ -175,12 +249,17 @@ function App() {
         body: JSON.stringify({
           url: userUrl,
           customCode: normalizedCustomCode || undefined,
+          title: linkTitle,
+          notes: linkNotes,
         }),
       })) as ShortenResponse;
 
       setCreatedLink(data);
       setUserUrl("");
       setCustomCode("");
+      setLinkTitle("");
+      setLinkNotes("");
+
       await loadLinks();
       showSuccess("Permanent link created.");
     } catch (error) {
@@ -217,12 +296,17 @@ function App() {
   async function loadClicks(code: string) {
     if (!token) return;
 
-    setSelectedCode(code);
+    const normalizedCode = code.toLowerCase();
+
+    setSelectedCode(normalizedCode);
     setClicks([]);
+    setAnalyticsSummary(emptySummary);
+    setQrCode("");
+    setQrSvg("");
     setMessage("");
 
     try {
-      const data = (await apiCall(`/links/${code.toLowerCase()}/clicks`, {
+      const data = (await apiCall(`/links/${normalizedCode}/clicks`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -230,32 +314,86 @@ function App() {
       })) as ClicksResponse;
 
       setClicks(data.clicks || []);
+      setAnalyticsSummary(data.summary || emptySummary);
     } catch (error) {
       showError(error instanceof Error ? error.message : "Failed to load clicks");
     }
   }
 
-  async function updateLinkUrl(code: string) {
+  async function loadQrCode(code: string) {
     if (!token) return;
+
+    const normalizedCode = code.toLowerCase();
+
+    setQrCode(normalizedCode);
+    setQrSvg("");
+    setSelectedCode("");
+    setClicks([]);
+    setAnalyticsSummary(emptySummary);
+    setQrLoading(true);
+    setMessage("");
+
+    try {
+      const svg = await textApiCall(`/links/${normalizedCode}/qr`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setQrSvg(svg);
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to load QR code");
+    } finally {
+      setQrLoading(false);
+    }
+  }
+
+  function downloadQrSvg() {
+    if (!qrSvg || !qrCode) return;
+
+    const blob = new Blob([qrSvg], {
+      type: "image/svg+xml",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+
+    anchor.href = url;
+    anchor.download = `go-${qrCode}-qr.svg`;
+    anchor.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  async function updateLinkDetails(code: string) {
+    if (!token) return;
+
+    const normalizedCode = code.toLowerCase();
 
     setLoading(true);
     setMessage("");
 
     try {
-      await apiCall(`/links/${code.toLowerCase()}`, {
+      await apiCall(`/links/${normalizedCode}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           originalUrl: editingUrl,
+          title: editingTitle,
+          notes: editingNotes,
         }),
       });
 
       setEditingCode("");
       setEditingUrl("");
+      setEditingTitle("");
+      setEditingNotes("");
+
       await loadLinks();
-      showSuccess("Link destination updated.");
+      showSuccess("Link details updated.");
     } catch (error) {
       showError(error instanceof Error ? error.message : "Failed to update link");
     } finally {
@@ -266,11 +404,13 @@ function App() {
   async function updateLinkStatus(code: string, status: "active" | "inactive") {
     if (!token) return;
 
+    const normalizedCode = code.toLowerCase();
+
     setLoading(true);
     setMessage("");
 
     try {
-      await apiCall(`/links/${code.toLowerCase()}`, {
+      await apiCall(`/links/${normalizedCode}`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -316,6 +456,12 @@ function App() {
       if (selectedCode.toLowerCase() === normalizedCode) {
         setSelectedCode("");
         setClicks([]);
+        setAnalyticsSummary(emptySummary);
+      }
+
+      if (qrCode.toLowerCase() === normalizedCode) {
+        setQrCode("");
+        setQrSvg("");
       }
 
       showSuccess("Link permanently deleted.");
@@ -329,18 +475,25 @@ function App() {
   function startEditing(link: ShortenResponse) {
     setEditingCode(link.code.toLowerCase());
     setEditingUrl(getDestination(link));
+    setEditingTitle(getTitle(link));
+    setEditingNotes(getNotes(link));
   }
 
   function cancelEditing() {
     setEditingCode("");
     setEditingUrl("");
+    setEditingTitle("");
+    setEditingNotes("");
   }
 
   function signOut() {
     auth.removeUser();
     setLinks([]);
     setClicks([]);
+    setAnalyticsSummary(emptySummary);
     setSelectedCode("");
+    setQrCode("");
+    setQrSvg("");
     setMessage("");
     window.location.href = buildLogoutUrl();
   }
@@ -361,52 +514,50 @@ function App() {
 
   return (
     <main className={`bitlyShell ${theme}`}>
-      <header className="topNav">
-        <a className="brand" href="/">
-          <img src={logo} alt="Go by 17bytes logo" />
-          <span>Go</span>
-        </a>
+<header className="topNav cleanTopNav">
+  <a className="brand cleanBrand" href="/">
+    <img src={logo} alt="Go by 17bytes logo" />
+    <span>Go</span>
+  </a>
 
-        <nav className="desktopLinks">
-          <a href="#shorten">Shorten</a>
-          <a href="#features">Features</a>
-          {isSignedIn && <a href="#dashboard">Dashboard</a>}
-        </nav>
+  <nav className="desktopLinks cleanNavLinks">
+    <a href="#shorten">Shorten</a>
+    <a href="#features">Features</a>
+    {isSignedIn && <a href="#dashboard">Dashboard</a>}
+  </nav>
 
-        <div className="navActions">
-          <button
-            className="textButton"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light" ? "Dark mode" : "Day mode"}
-          </button>
+  <div className="navActions cleanNavActions">
+    <button
+      className="iconThemeButton"
+      aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+    >
+      {theme === "light" ? "🌙" : "☀️"}
+    </button>
 
-          {auth.isLoading ? (
-            <span className="navMuted">Checking...</span>
-          ) : isSignedIn ? (
-            <>
-              <span className="accountPill">
-                {auth.user?.profile.email || "Signed in"}
-              </span>
-              <button className="outlineButton navButton" onClick={signOut}>
-                Sign out
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="textButton" onClick={() => auth.signinRedirect()}>
-                Log in
-              </button>
-              <button
-                className="primaryButton navButton"
-                onClick={() => auth.signinRedirect()}
-              >
-                Sign up
-              </button>
-            </>
-          )}
-        </div>
-      </header>
+    {auth.isLoading ? (
+      <span className="navMuted">Checking...</span>
+    ) : isSignedIn ? (
+      <>
+        <span className="accountPill cleanAccountPill">
+          {auth.user?.profile.email || "Signed in"}
+        </span>
+
+        <button className="outlineButton navButton cleanSignButton" onClick={signOut}>
+          Sign out
+        </button>
+      </>
+    ) : (
+      <button
+        className="primaryButton navButton cleanSignButton"
+        onClick={() => auth.signinRedirect()}
+      >
+        Sign in / Sign up
+      </button>
+    )}
+  </div>
+</header>
 
       <section className="hero">
         <p className="heroLabel">Go by 17bytes</p>
@@ -495,6 +646,7 @@ function App() {
             </a>
             <small>
               {createdLink.type} · {createdLink.status}
+              {createdLink.title ? ` · ${createdLink.title}` : ""}
               {createdLink.expiresAt ? ` · expires ${createdLink.expiresAt}` : ""}
             </small>
           </div>
@@ -540,7 +692,7 @@ function App() {
               </p>
             </div>
 
-            <div className="accountForm">
+            <div className="accountForm accountFormExpanded">
               <input
                 value={userUrl}
                 onChange={(event) => setUserUrl(event.target.value)}
@@ -558,6 +710,20 @@ function App() {
                   setCustomCode(event.target.value.trim().toLowerCase())
                 }
                 placeholder="Custom alias, optional"
+              />
+
+              <input
+                value={linkTitle}
+                onChange={(event) => setLinkTitle(event.target.value)}
+                placeholder="Title, optional"
+                maxLength={120}
+              />
+
+              <textarea
+                value={linkNotes}
+                onChange={(event) => setLinkNotes(event.target.value)}
+                placeholder="Notes, optional"
+                maxLength={500}
               />
 
               <button
@@ -633,7 +799,8 @@ function App() {
                         {link.status}
                       </span>
 
-                      <strong>{link.code.toLowerCase()}</strong>
+                      <strong>{getTitle(link)}</strong>
+                      <span className="codeText">{link.code.toLowerCase()}</span>
 
                       <a href={link.shortUrl} target="_blank" rel="noreferrer">
                         {link.shortUrl}
@@ -644,16 +811,30 @@ function App() {
                       {editingCode === link.code.toLowerCase() ? (
                         <div className="editForm">
                           <input
+                            value={editingTitle}
+                            onChange={(event) => setEditingTitle(event.target.value)}
+                            placeholder="Title"
+                            maxLength={120}
+                          />
+
+                          <input
                             value={editingUrl}
                             onChange={(event) => setEditingUrl(event.target.value)}
                             placeholder="https://new-destination.com"
+                          />
+
+                          <textarea
+                            value={editingNotes}
+                            onChange={(event) => setEditingNotes(event.target.value)}
+                            placeholder="Notes"
+                            maxLength={500}
                           />
 
                           <div className="inlineActions">
                             <button
                               className="primaryButton smallButton"
                               disabled={!editingUrl || loading}
-                              onClick={() => updateLinkUrl(link.code)}
+                              onClick={() => updateLinkDetails(link.code)}
                             >
                               Save
                             </button>
@@ -667,7 +848,12 @@ function App() {
                           </div>
                         </div>
                       ) : (
-                        <p>{getDestination(link)}</p>
+                        <>
+                          <p>{getDestination(link)}</p>
+                          {getNotes(link) && (
+                            <small className="notesText">{getNotes(link)}</small>
+                          )}
+                        </>
                       )}
                     </div>
 
@@ -690,6 +876,13 @@ function App() {
                         onClick={() => loadClicks(link.code)}
                       >
                         Analytics
+                      </button>
+
+                      <button
+                        className="outlineButton smallButton"
+                        onClick={() => loadQrCode(link.code)}
+                      >
+                        QR
                       </button>
 
                       <button
@@ -733,6 +926,46 @@ function App() {
         </>
       )}
 
+      {isSignedIn && qrCode && (
+        <section className="analyticsPanel qrPanel">
+          <div className="dashboardHeader">
+            <div>
+              <p className="sectionKicker">QR Code</p>
+              <h2>{qrCode}</h2>
+              <p className="helperText">Scan or download this QR code as SVG.</p>
+            </div>
+
+            <div className="inlineActions">
+              <button
+                className="outlineButton"
+                disabled={!qrSvg}
+                onClick={downloadQrSvg}
+              >
+                Download SVG
+              </button>
+
+              <button
+                className="outlineButton"
+                onClick={() => {
+                  setQrCode("");
+                  setQrSvg("");
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+
+          {qrLoading ? (
+            <div className="emptyState">Generating QR code...</div>
+          ) : qrSvg ? (
+            <div className="qrPreview" dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          ) : (
+            <div className="emptyState">No QR code loaded.</div>
+          )}
+        </section>
+      )}
+
       {isSignedIn && selectedCode && (
         <section className="analyticsPanel">
           <div className="dashboardHeader">
@@ -746,10 +979,82 @@ function App() {
               onClick={() => {
                 setSelectedCode("");
                 setClicks([]);
+                setAnalyticsSummary(emptySummary);
               }}
             >
               Close
             </button>
+          </div>
+
+          <div className="analyticsSummaryGrid">
+            <article>
+              <span>Total clicks</span>
+              <strong>{analyticsSummary.totalClicks}</strong>
+            </article>
+
+            <article>
+              <span>Unique visitors</span>
+              <strong>{analyticsSummary.uniqueVisitors}</strong>
+            </article>
+
+            <article>
+              <span>Clicks today</span>
+              <strong>{analyticsSummary.clicksToday}</strong>
+            </article>
+
+            <article>
+              <span>Top referrer</span>
+              <strong>{analyticsSummary.topReferrer}</strong>
+            </article>
+          </div>
+
+          <div className="breakdownGrid">
+            <article className="breakdownCard">
+              <h3>Referrers</h3>
+              {entriesFromRecord(analyticsSummary.referrers).length === 0 ? (
+                <p>No referrer data yet.</p>
+              ) : (
+                entriesFromRecord(analyticsSummary.referrers).map(([name, count]) => (
+                  <div className="breakdownRow" key={name}>
+                    <span>{name}</span>
+                    <strong>{count}</strong>
+                  </div>
+                ))
+              )}
+            </article>
+
+            <article className="breakdownCard">
+              <h3>Devices</h3>
+              {entriesFromRecord(analyticsSummary.devices).length === 0 ? (
+                <p>No device data yet.</p>
+              ) : (
+                entriesFromRecord(analyticsSummary.devices).map(([name, count]) => (
+                  <div className="breakdownRow" key={name}>
+                    <span>{name}</span>
+                    <strong>{count}</strong>
+                  </div>
+                ))
+              )}
+            </article>
+
+            <article className="breakdownCard">
+              <h3>Browsers</h3>
+              {entriesFromRecord(analyticsSummary.browsers).length === 0 ? (
+                <p>No browser data yet.</p>
+              ) : (
+                entriesFromRecord(analyticsSummary.browsers).map(([name, count]) => (
+                  <div className="breakdownRow" key={name}>
+                    <span>{name}</span>
+                    <strong>{count}</strong>
+                  </div>
+                ))
+              )}
+            </article>
+          </div>
+
+          <div className="recentClicksHeader">
+            <h3>Recent clicks</h3>
+            <span>{clicks.length} total</span>
           </div>
 
           {clicks.length === 0 ? (
@@ -757,10 +1062,25 @@ function App() {
           ) : (
             <div className="clickList">
               {clicks.map((click, index) => (
-                <article className="clickRow" key={`${click.clickedAt}-${index}`}>
-                  <strong>{formatDate(click.clickedAt)}</strong>
-                  <span>{click.referrer || "Direct / unknown referrer"}</span>
-                  <small>{click.userAgent || "Unknown device"}</small>
+                <article className="clickRow improvedClickRow" key={`${click.clickedAt}-${index}`}>
+                  <div>
+                    <strong>{formatDate(click.clickedAt)}</strong>
+                    <span>{click.referrer || "Direct"}</span>
+                  </div>
+
+                  <div className="clickMeta">
+                    <small>{click.deviceType || "unknown"}</small>
+                    <small>{click.browser || "Other"}</small>
+                    <small>
+                      {click.visitorHash
+                        ? `Visitor ${click.visitorHash.slice(0, 8)}`
+                        : "Legacy click"}
+                    </small>
+                  </div>
+
+                  <small className="userAgentText">
+                    {click.userAgent || "Unknown device"}
+                  </small>
                 </article>
               ))}
             </div>
@@ -768,10 +1088,50 @@ function App() {
         </section>
       )}
 
-      <footer className="footer">
-        <strong>Go by 17bytes</strong>
-        <span>Shorten. Share. Measure.</span>
-      </footer>
+      <footer className="specialFooter">
+  <div className="footerMain">
+    <div className="footerBrand">
+      <a className="footerLogo" href="/">
+        <img src={logo}/>
+        <span>Go</span>
+      </a>
+
+      <p>
+        Shorten. Share. Measure. A serverless link management platform by
+        17bytes.
+      </p>
+    </div>
+
+    <div className="footerLinks">
+      <div>
+        <strong>Product</strong>
+        <a href="#shorten">Shorten</a>
+        <a href="#features">Features</a>
+        {isSignedIn && <a href="#dashboard">Dashboard</a>}
+      </div>
+
+      <div>
+        <strong>Platform</strong>
+        <span>AWS Lambda</span>
+        <span>API Gateway</span>
+        <span>DynamoDB</span>
+        <span>Cognito</span>
+        <span>Cloudflare Pages</span>
+      </div>
+    </div>
+
+    <div className="footerBadge">
+      <span>Production project</span>
+      <strong>Serverless SaaS</strong>
+      <small>Built with React, Cognito, API Gateway & DynamoDB</small>
+    </div>
+  </div>
+
+  <div className="footerBottom"><span>© {new Date().getFullYear()} 17Bytes. Go is a product of 17Bytes. Certified by XCENTURY. All rights reserved.
+  </span>
+    <span>Made for fast, measurable links.</span>
+  </div>
+</footer>
     </main>
   );
 }
