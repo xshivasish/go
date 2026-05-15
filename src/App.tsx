@@ -514,28 +514,22 @@ function App() {
 
   return (
     <main className={`bitlyShell ${theme}`}>
-<header className="topNav cleanTopNav">
-  <a className="brand cleanBrand" href="/">
-    <img src={logo} alt="Go by 17bytes logo" />
+<header className="topNav cleanTopNav mobileCleanTopNav">
+
+  <a className="brand cleanBrand mobileBrand" href="/">
+    <img src={logo} />
     <span>Go</span>
   </a>
 
-  <nav className="desktopLinks cleanNavLinks">
-    <a href="#shorten">Shorten</a>
-    <a href="#features">Features</a>
-    {isSignedIn && <a href="#dashboard">Dashboard</a>}
-  </nav>
-
-  <div className="navActions cleanNavActions">
-    <button
-      className="iconThemeButton"
-      aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-      title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-    >
-      {theme === "light" ? "🌙" : "☀️"}
-    </button>
-
+  <button
+    className="iconThemeButton mobileThemeLeft"
+    aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+    title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+    onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+  >
+    {theme === "light" ? "☀️" : "🌙"}
+  </button>
+  <div className="navActions cleanNavActions mobileNavActions">
     {auth.isLoading ? (
       <span className="navMuted">Checking...</span>
     ) : isSignedIn ? (
@@ -544,23 +538,26 @@ function App() {
           {auth.user?.profile.email || "Signed in"}
         </span>
 
-        <button className="outlineButton navButton cleanSignButton" onClick={signOut}>
+        <button
+          className="outlineButton navButton cleanSignButton fixedAuthButton"
+          onClick={signOut}
+        >
           Sign out
         </button>
       </>
     ) : (
       <button
-        className="primaryButton navButton cleanSignButton"
+        className="primaryButton navButton cleanSignButton fixedAuthButton"
         onClick={() => auth.signinRedirect()}
       >
-        Sign in / Sign up
+        Sign in
       </button>
     )}
   </div>
 </header>
 
       <section className="hero">
-        <p className="heroLabel">Go by 17bytes</p>
+        <p className="heroLabel">जय श्री राम</p>
         <h1>Short links, big results</h1>
         <p className="heroCopy">
           A simple link shortener for temporary links, custom aliases, analytics,
@@ -1088,24 +1085,27 @@ function App() {
         </section>
       )}
 
-      <footer className="specialFooter">
+<footer className="specialFooter">
   <div className="footerMain">
     <div className="footerBrand">
       <a className="footerLogo" href="/">
         <img src={logo}/>
-        <span>Go</span>
-      </a>
-
-      <p>
-        Shorten. Share. Measure. A serverless link management platform by
-        17bytes.
-      </p>
-    </div>
+          <span>Go by 17Bytes</span>
+            </a>
+              <strong><p>
+                Shorten. Share. Measure.
+                </p></strong>
+                <strong><p>
+                    helps you shorten, share, and measure links from one clean
+                  dashboard, with custom aliases, QR codes, analytics, and simple link
+                  management.
+                  </p></strong>
+                    </div>
 
     <div className="footerLinks">
       <div>
-        <strong>Product</strong>
-        <a href="#shorten">Shorten</a>
+        <strong>OUR PRODUCTS</strong>
+        <a href="https://chat.17bytes.com">FUNCHAT</a>
         <a href="#features">Features</a>
         {isSignedIn && <a href="#dashboard">Dashboard</a>}
       </div>

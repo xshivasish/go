@@ -1177,3 +1177,118 @@ textarea:focus {
     padding-inline: 14px;
   }
 }
+.fixedAuthButton {
+  width: 118px;
+  height: 42px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  text-align: center;
+}
+
+.mobileThemeLeft {
+  order: 0;
+  flex: 0 0 42px;
+}
+
+.mobileBrand {
+  order: 1;
+}
+
+.cleanNavLinks {
+  order: 2;
+}
+
+.mobileNavActions {
+  order: 3;
+  margin-left: auto;
+}
+
+@media (max-width: 760px) {
+  .mobileCleanTopNav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 12px;
+    border-radius: 20px;
+  }
+
+  .mobileThemeLeft {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    font-size: 17px;
+  }
+
+  .mobileBrand {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .mobileBrand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mobileBrand span {
+    font-size: 20px;
+  }
+
+  .mobileNavActions {
+    margin-left: auto;
+    gap: 0;
+  }
+
+  .fixedAuthButton {
+    width: 96px;
+    height: 40px;
+    font-size: 13px;
+    border-radius: 999px;
+  }
+
+  .cleanAccountPill {
+    display: none;
+  }
+
+  .cleanNavLinks {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .mobileCleanTopNav {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .mobileBrand span {
+    display: none;
+  }
+
+  .fixedAuthButton {
+    width: 88px;
+    font-size: 12px;
+  }
+}
+.bitlyShell {
+  padding-top: 24px;
+  background: var(--bg);
+}
+
+.cleanTopNav {
+  margin-top: 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-color: var(--border);
+}
+
+.bitlyShell.dark .cleanTopNav {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-color: var(--border);
+}
+
+@media (max-width: 760px) {
+  .bitlyShell {
+    padding-top: 14px;
+  }
+}
