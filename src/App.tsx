@@ -55,6 +55,89 @@ type ClicksResponse = {
   clicks: ClickItem[];
 };
 
+type BillingPlan = {
+  id: "one_year" | "two_years" | "five_years" | "lifetime";
+  name: string;
+  price: string;
+  duration: string;
+  badge?: string;
+  save?: string;
+};
+
+type BillingStatus = {
+  ownerId: string;
+  email: string;
+  plan: string;
+  planName: string;
+  displayPrice: string;
+  status: string;
+  accessUntil: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  amount: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type BillingMeResponse = {
+  plan: BillingStatus;
+};
+
+type RazorpayOrderResponse = {
+  keyId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  plan: string;
+  planName: string;
+  displayPrice: string;
+  accessUntil: string;
+  prefill: {
+    email?: string;
+  };
+};
+
+type RazorpayVerifyResponse = {
+  message: string;
+  status: string;
+  plan: string;
+  planName: string;
+  displayPrice?: string;
+  accessUntil: string;
+};
+
+type RazorpayCheckoutResponse = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: {
+      key: string;
+      amount: number;
+      currency: string;
+      name: string;
+      description: string;
+      order_id: string;
+      prefill?: {
+        email?: string;
+      };
+      theme?: {
+        color: string;
+      };
+      handler: (response: RazorpayCheckoutResponse) => void;
+      modal?: {
+        ondismiss?: () => void;
+      };
+    }) => {
+      open: () => void;
+    };
+  }
+}
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const emptySummary: AnalyticsSummary = {
@@ -66,6 +149,38 @@ const emptySummary: AnalyticsSummary = {
   devices: {},
   browsers: {},
 };
+
+const billingPlans: BillingPlan[] = [
+  {
+    id: "one_year",
+    name: "Starter",
+    price: "₹999",
+    duration: "1 year access",
+  },
+  {
+    id: "two_years",
+    name: "Plus",
+    price: "₹1,898",
+    duration: "2 years access",
+    save: "Save ₹100",
+    badge: "Popular",
+  },
+  {
+    id: "five_years",
+    name: "Pro",
+    price: "₹4,695",
+    duration: "5 years access",
+    save: "Save ₹300",
+  },
+  {
+    id: "lifetime",
+    name: "Lifetime",
+    price: "₹9,490",
+    duration: "Pay once, use forever",
+    save: "Save ₹500",
+    badge: "Best value",
+  },
+];
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
@@ -110,8 +225,13 @@ function App() {
   const [editingTitle, setEditingTitle] = useState("");
   const [editingNotes, setEditingNotes] = useState("");
 
+  const [currentPlan, setCurrentPlan] = useState<BillingStatus | null>(null);
+  const [billingStatusLoading, setBillingStatusLoading] = useState(false);
+  const [billingLoadingPlan, setBillingLoadingPlan] = useState("");
+
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("error");
+
   const [loading, setLoading] = useState(false);
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
@@ -138,6 +258,9 @@ function App() {
   useEffect(() => {
     if (auth.isAuthenticated) {
       loadLinks();
+      loadBillingStatus();
+    } else {
+      setCurrentPlan(null);
     }
   }, [auth.isAuthenticated]);
 
@@ -181,6 +304,49 @@ function App() {
     return text;
   }
 
+  function loadRazorpayScript() {
+    return new Promise<boolean>((resolve) => {
+      const existingScript = document.getElementById("razorpay-checkout-js");
+
+      if (existingScript) {
+        resolve(true);
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = "razorpay-checkout-js";
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+
+      document.body.appendChild(script);
+    });
+  }
+
+  async function loadBillingStatus() {
+    if (!token) return;
+
+    setBillingStatusLoading(true);
+
+    try {
+      const data = (await apiCall("/billing/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })) as BillingMeResponse;
+
+      setCurrentPlan(data.plan);
+    } catch (error) {
+      showError(
+        error instanceof Error ? error.message : "Failed to load billing status"
+      );
+    } finally {
+      setBillingStatusLoading(false);
+    }
+  }
+
   function getDestination(link: ShortenResponse) {
     return link.originalUrl || link.url || "";
   }
@@ -205,6 +371,101 @@ function App() {
 
   function entriesFromRecord(record: Record<string, number>) {
     return Object.entries(record || {}).sort((a, b) => b[1] - a[1]);
+  }
+
+  function formatAccess(value?: string) {
+    if (!value || value === "free") return "Free";
+    if (value === "lifetime") return "Lifetime";
+    return formatDate(value);
+  }
+
+  function hasPaidPlan() {
+    return (
+      currentPlan?.status === "active" &&
+      Boolean(currentPlan?.plan) &&
+      currentPlan?.plan !== "free"
+    );
+  }
+
+  async function buyPlan(planId: BillingPlan["id"]) {
+    if (!token) {
+      showError("Please sign in before buying a plan.");
+      auth.signinRedirect();
+      return;
+    }
+
+    setBillingLoadingPlan(planId);
+    setMessage("");
+
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+
+      if (!scriptLoaded || !window.Razorpay) {
+        throw new Error("Failed to load Razorpay checkout");
+      }
+
+      const order = (await apiCall("/billing/create-order", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          plan: planId,
+        }),
+      })) as RazorpayOrderResponse;
+
+      const checkout = new window.Razorpay({
+        key: order.keyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Go by 17Bytes",
+        description: order.planName,
+        order_id: order.orderId,
+        prefill: {
+          email: order.prefill?.email || auth.user?.profile.email || "",
+        },
+        theme: {
+          color: "#0052cc",
+        },
+        handler: async (paymentResponse) => {
+          try {
+            const verified = (await apiCall("/billing/verify-payment", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify(paymentResponse),
+            })) as RazorpayVerifyResponse;
+
+            showSuccess(
+              `${verified.planName || "Your plan"} is active. Access: ${formatAccess(
+                verified.accessUntil
+              )}`
+            );
+
+            await loadBillingStatus();
+          } catch (error) {
+            showError(
+              error instanceof Error
+                ? error.message
+                : "Payment completed, but verification failed"
+            );
+          } finally {
+            setBillingLoadingPlan("");
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setBillingLoadingPlan("");
+          },
+        },
+      });
+
+      checkout.open();
+    } catch (error) {
+      setBillingLoadingPlan("");
+      showError(error instanceof Error ? error.message : "Failed to start checkout");
+    }
   }
 
   async function createTemporaryLink() {
@@ -491,6 +752,7 @@ function App() {
     setLinks([]);
     setClicks([]);
     setAnalyticsSummary(emptySummary);
+    setCurrentPlan(null);
     setSelectedCode("");
     setQrCode("");
     setQrSvg("");
@@ -514,54 +776,61 @@ function App() {
 
   return (
     <main className={`bitlyShell ${theme}`}>
-<header className="topNav cleanTopNav mobileCleanTopNav">
-
-  <a className="brand cleanBrand mobileBrand" href="/">
-    <img src={logo} />
-    <span>Go</span>
-  </a>
-
-  <button
-    className="iconThemeButton mobileThemeLeft"
-    aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-    title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-    onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-  >
-    {theme === "light" ? "☀️" : "🌙"}
-  </button>
-  <div className="navActions cleanNavActions mobileNavActions">
-    {auth.isLoading ? (
-      <span className="navMuted">Checking...</span>
-    ) : isSignedIn ? (
-      <>
-        <span className="accountPill cleanAccountPill">
-          {auth.user?.profile.email || "Signed in"}
-        </span>
-
+      <header className="topNav cleanTopNav mobileCleanTopNav">
         <button
-          className="outlineButton navButton cleanSignButton fixedAuthButton"
-          onClick={signOut}
+          className="iconThemeButton mobileThemeLeft"
+          aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
-          Sign out
+          {theme === "light" ? "🌙" : "☀️"}
         </button>
-      </>
-    ) : (
-      <button
-        className="primaryButton navButton cleanSignButton fixedAuthButton"
-        onClick={() => auth.signinRedirect()}
-      >
-        Sign in
-      </button>
-    )}
-  </div>
-</header>
+
+        <a className="brand cleanBrand mobileBrand" href="/">
+          <img src={logo} alt="Go by 17bytes logo" />
+          <span>Go</span>
+        </a>
+
+        <nav className="desktopLinks cleanNavLinks">
+          <a href="#shorten">Shorten</a>
+          <a href="#features">Features</a>
+          {isSignedIn && <a href="#pricing">Plan</a>}
+          {isSignedIn && <a href="#dashboard">Dashboard</a>}
+        </nav>
+
+        <div className="navActions cleanNavActions mobileNavActions">
+          {auth.isLoading ? (
+            <span className="navMuted">Checking...</span>
+          ) : isSignedIn ? (
+            <>
+              <span className="accountPill cleanAccountPill">
+                {auth.user?.profile.email || "Signed in"}
+              </span>
+
+              <button
+                className="outlineButton navButton cleanSignButton fixedAuthButton"
+                onClick={signOut}
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <button
+              className="primaryButton navButton cleanSignButton fixedAuthButton"
+              onClick={() => auth.signinRedirect()}
+            >
+              Sign in
+            </button>
+          )}
+        </div>
+      </header>
 
       <section className="hero">
-        <p className="heroLabel">जय श्री राम</p>
+        <p className="heroLabel">Go by 17bytes</p>
         <h1>Short links, big results</h1>
         <p className="heroCopy">
           A simple link shortener for temporary links, custom aliases, analytics,
-          and full link management.
+          QR codes, and full link management.
         </p>
 
         <div className="heroCtas">
@@ -570,7 +839,7 @@ function App() {
               className="primaryButton largeButton"
               onClick={() => auth.signinRedirect()}
             >
-              Get started for free
+              Get started
             </button>
           )}
 
@@ -612,7 +881,8 @@ function App() {
         </div>
 
         <p className="helperText">
-          Want custom aliases and permanent links? Sign in and use your dashboard.
+          Want custom aliases, QR codes, analytics, and permanent links? Sign in and
+          use your dashboard.
         </p>
       </section>
 
@@ -673,7 +943,7 @@ function App() {
         <article>
           <span>03</span>
           <h3>Measure every click</h3>
-          <p>Track clicks, referrers, timestamps, and device information.</p>
+          <p>Track clicks, referrers, devices, browsers, timestamps, and QR usage.</p>
         </article>
       </section>
 
@@ -684,8 +954,8 @@ function App() {
               <p className="sectionKicker">Your account</p>
               <h2>Create a permanent link</h2>
               <p>
-                Permanent links stay in your dashboard and can be edited,
-                paused, measured, or deleted.
+                Permanent links stay in your dashboard and can be edited, paused,
+                measured, or deleted.
               </p>
             </div>
 
@@ -731,6 +1001,107 @@ function App() {
                 {loading ? "Creating..." : "Create link"}
               </button>
             </div>
+          </section>
+
+          <section className="pricingSection" id="pricing">
+            <div className="pricingHeader">
+              <p className="sectionKicker">Plan</p>
+              <h2>Your Go access.</h2>
+              <p>
+                Manage your current plan and upgrade only when you are ready. All
+                prices are in Indian Rupees.
+              </p>
+            </div>
+
+            <div className="currentPlanCard">
+              <div>
+                <p className="sectionKicker">Current plan</p>
+                <h3>
+                  {billingStatusLoading
+                    ? "Checking plan..."
+                    : currentPlan?.planName || "Go Free"}
+                </h3>
+                <span>
+                  {currentPlan
+                    ? `${currentPlan.displayPrice} · ${currentPlan.status}`
+                    : "₹0 · active"}
+                </span>
+              </div>
+
+              <div>
+                <strong>Access</strong>
+                <span>{formatAccess(currentPlan?.accessUntil)}</span>
+              </div>
+            </div>
+
+            {!hasPaidPlan() && (
+              <>
+                <div className="pricingHeader pricingUpgradeHeader">
+                  <p className="sectionKicker">Upgrade</p>
+                  <h2>Simple pricing, like software used to be.</h2>
+                  <p>Pay once. Use Go without monthly subscription stress.</p>
+                </div>
+
+                <div className="pricingGrid">
+                  {billingPlans.map((plan) => (
+                    <article
+                      className={
+                        plan.id === "lifetime"
+                          ? "pricingCard highlightedPricingCard"
+                          : "pricingCard"
+                      }
+                      key={plan.id}
+                    >
+                      {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
+
+                      <h3>{plan.name}</h3>
+
+                      <div className="priceLine">
+                        <strong>{plan.price}</strong>
+                        <span>{plan.duration}</span>
+                      </div>
+
+                      {plan.save && <p className="saveText">{plan.save}</p>}
+
+                      <ul>
+                        <li>Unlimited short links under fair use</li>
+                        <li>Custom aliases</li>
+                        <li>QR code generation</li>
+                        <li>Click analytics</li>
+                        <li>Link editing and lifecycle controls</li>
+                      </ul>
+
+                      <button
+                        className={
+                          plan.id === "lifetime"
+                            ? "primaryButton pricingButton"
+                            : "outlineButton pricingButton"
+                        }
+                        disabled={Boolean(billingLoadingPlan)}
+                        onClick={() => buyPlan(plan.id)}
+                      >
+                        {billingLoadingPlan === plan.id ? "Opening..." : "Choose plan"}
+                      </button>
+                    </article>
+                  ))}
+                </div>
+
+                <p className="pricingNote">
+                  Payments are processed securely by Razorpay. Fair-use protections
+                  apply to prevent spam, abuse, and automated high-volume traffic.
+                </p>
+              </>
+            )}
+
+            {hasPaidPlan() && (
+              <div className="paidPlanNotice">
+                <strong>You are subscribed.</strong>
+                <span>
+                  Your paid plan is active. Pricing cards are hidden because you
+                  already have Go access.
+                </span>
+              </div>
+            )}
           </section>
 
           <section className="statsGrid">
@@ -1059,7 +1430,10 @@ function App() {
           ) : (
             <div className="clickList">
               {clicks.map((click, index) => (
-                <article className="clickRow improvedClickRow" key={`${click.clickedAt}-${index}`}>
+                <article
+                  className="clickRow improvedClickRow"
+                  key={`${click.clickedAt}-${index}`}
+                >
                   <div>
                     <strong>{formatDate(click.clickedAt)}</strong>
                     <span>{click.referrer || "Direct"}</span>
@@ -1085,53 +1459,55 @@ function App() {
         </section>
       )}
 
-<footer className="specialFooter">
-  <div className="footerMain">
-    <div className="footerBrand">
-      <a className="footerLogo" href="/">
-        <img src={logo}/>
-          <span>Go by 17Bytes</span>
+      <footer className="specialFooter">
+        <div className="footerMain">
+          <div className="footerBrand">
+            <a className="footerLogo" href="/">
+              <img src={logo} alt="Go by 17bytes logo" />
+              <span>Go</span>
             </a>
-              <strong><p>
-                Shorten. Share. Measure.
-                </p></strong>
-                <strong><p>
-                    helps you shorten, share, and measure links from one clean
-                  dashboard, with custom aliases, QR codes, analytics, and simple link
-                  management.
-                  </p></strong>
-                    </div>
 
-    <div className="footerLinks">
-      <div>
-        <strong>OUR PRODUCTS</strong>
-        <a href="https://chat.17bytes.com">FUNCHAT</a>
-        <a href="#features">Features</a>
-        {isSignedIn && <a href="#dashboard">Dashboard</a>}
-      </div>
+            <p>
+              Go by 17Bytes helps you shorten, share, and measure links from one
+              clean dashboard, with custom aliases, QR codes, analytics, and simple
+              link management.
+            </p>
+          </div>
 
-      <div>
-        <strong>Platform</strong>
-        <span>AWS Lambda</span>
-        <span>API Gateway</span>
-        <span>DynamoDB</span>
-        <span>Cognito</span>
-        <span>Cloudflare Pages</span>
-      </div>
-    </div>
+          <div className="footerLinks">
+            <div>
+              <strong>Product</strong>
+              <a href="#shorten">Shorten</a>
+              <a href="#features">Features</a>
+              {isSignedIn && <a href="#pricing">Plan</a>}
+              {isSignedIn && <a href="#dashboard">Dashboard</a>}
+            </div>
 
-    <div className="footerBadge">
-      <span>Production project</span>
-      <strong>Serverless SaaS</strong>
-      <small>Built with React, Cognito, API Gateway & DynamoDB</small>
-    </div>
-  </div>
+            <div>
+              <strong>Platform</strong>
+              <span>AWS Lambda</span>
+              <span>API Gateway</span>
+              <span>DynamoDB</span>
+              <span>Cognito</span>
+              <span>Cloudflare Pages</span>
+            </div>
+          </div>
 
-  <div className="footerBottom"><span>© {new Date().getFullYear()} 17Bytes. Go is a product of 17Bytes. Certified by XCENTURY. All rights reserved.
-  </span>
-    <span>Made for fast, measurable links.</span>
-  </div>
-</footer>
+          <div className="footerBadge">
+            <span>Production project</span>
+            <strong>Serverless SaaS</strong>
+            <small>Built with React, Cognito, API Gateway & DynamoDB</small>
+          </div>
+        </div>
+
+        <div className="footerBottom">
+          <span>
+            © {new Date().getFullYear()} 17Bytes. Go is a product of 17Bytes.
+            Certified by xCentury. All rights reserved.
+          </span>
+          <span>Simple pricing. No monthly subscription stress.</span>
+        </div>
+      </footer>
     </main>
   );
 }

@@ -1436,3 +1436,797 @@ textarea:focus {
     font-size: 11px;
   }
 }
+/* Final responsive header cleanup */
+.bitlyShell {
+  padding-top: 24px;
+  background: var(--bg);
+}
+
+.cleanTopNav {
+  margin-top: 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border-color: var(--border);
+}
+
+.bitlyShell.dark .cleanTopNav {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border-color: var(--border);
+}
+
+.cleanTopNav.mobileCleanTopNav {
+  width: min(1180px, calc(100% - 32px));
+  box-sizing: border-box;
+  margin-inline: auto;
+}
+
+.fixedAuthButton {
+  width: 118px;
+  height: 42px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  text-align: center;
+  flex: 0 0 118px;
+}
+
+.mobileThemeLeft {
+  flex: 0 0 42px;
+}
+
+.mobileBrand {
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.mobileNavActions {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.iconThemeButton {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--surface-2);
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.iconThemeButton:hover {
+  transform: translateY(-1px);
+  border-color: var(--primary);
+  background: var(--surface);
+}
+
+.cleanNavLinks {
+  gap: 28px;
+}
+
+.cleanNavLinks a {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.cleanNavLinks a:hover {
+  color: var(--primary);
+}
+
+.cleanAccountPill {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Pricing */
+.pricingSection {
+  max-width: 1180px;
+  margin: 74px auto 0;
+  padding: 0 24px;
+}
+
+.pricingHeader {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.pricingHeader h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(32px, 5vw, 54px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.pricingHeader p {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.pricingCard {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.highlightedPricingCard {
+  border-color: var(--primary);
+  background:
+    radial-gradient(circle at top right, rgba(0, 82, 204, 0.13), transparent 36%),
+    var(--surface);
+}
+
+.pricingBadge {
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--primary);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.pricingCard h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+}
+
+.priceLine {
+  display: grid;
+  gap: 6px;
+}
+
+.priceLine strong {
+  color: var(--text);
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.priceLine span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.saveText {
+  margin: 0;
+  color: var(--orange);
+  font-weight: 950;
+}
+
+.pricingCard ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricingCard li {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.pricingCard li::before {
+  content: "✓";
+  margin-right: 8px;
+  color: var(--primary);
+  font-weight: 950;
+}
+
+.pricingButton {
+  width: 100%;
+  margin-top: 4px;
+  justify-content: center;
+}
+
+.pricingNote {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Textarea support */
+textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 92px;
+  resize: vertical;
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  outline: none;
+}
+
+.bitlyShell.dark textarea {
+  background: var(--surface-2);
+}
+
+textarea::placeholder {
+  color: var(--muted);
+}
+
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 82, 204, 0.12);
+}
+
+.accountFormExpanded {
+  grid-template-columns: 1fr 220px;
+}
+
+.accountFormExpanded textarea,
+.accountFormExpanded button {
+  grid-column: 1 / -1;
+}
+
+.codeText {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.notesText {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* QR */
+.qrPanel {
+  overflow: hidden;
+}
+
+.qrPreview {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.qrPreview svg {
+  width: min(320px, 100%);
+  height: auto;
+  display: block;
+}
+
+.qrPanel .dashboardHeader {
+  align-items: center;
+}
+
+/* Analytics */
+.analyticsSummaryGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin: 24px 0;
+}
+
+.analyticsSummaryGrid article {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.analyticsSummaryGrid span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.analyticsSummaryGrid strong {
+  display: block;
+  color: var(--text);
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.breakdownGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 20px 0 28px;
+}
+
+.breakdownCard {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+
+.breakdownCard h3 {
+  margin: 0 0 14px;
+  color: var(--text);
+  font-size: 17px;
+}
+
+.breakdownCard p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.breakdownRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.breakdownRow:last-child {
+  border-bottom: 0;
+}
+
+.breakdownRow span {
+  overflow-wrap: anywhere;
+}
+
+.breakdownRow strong {
+  color: var(--text);
+}
+
+.recentClicksHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 8px 0 14px;
+}
+
+.recentClicksHeader h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 20px;
+}
+
+.recentClicksHeader span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.improvedClickRow {
+  gap: 12px;
+}
+
+.improvedClickRow > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.clickMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.clickMeta small {
+  padding: 6px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--surface-2);
+  font-weight: 800;
+}
+
+.userAgentText {
+  display: block;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+/* Special footer */
+.specialFooter {
+  max-width: 1180px;
+  margin: 80px auto 0;
+  padding: 0 24px 34px;
+}
+
+.footerMain {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.9fr;
+  gap: 28px;
+  padding: 34px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(0, 82, 204, 0.13), transparent 34%),
+    linear-gradient(135deg, var(--surface), var(--surface-2));
+  box-shadow: var(--shadow);
+}
+
+.footerBrand p {
+  max-width: 360px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.footerLogo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 950;
+  font-size: 24px;
+}
+
+.footerLogo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.footerLinks {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.footerLinks div {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.footerLinks strong {
+  margin-bottom: 4px;
+  color: var(--text);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.footerLinks a,
+.footerLinks span {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.footerLinks a:hover {
+  color: var(--primary);
+}
+
+.footerBadge {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+}
+
+.footerBadge span {
+  color: var(--orange);
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.footerBadge strong {
+  color: var(--text);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.footerBadge small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.footerBottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 4px 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 1050px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analyticsSummaryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .breakdownGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .accountFormExpanded {
+    grid-template-columns: 1fr;
+  }
+
+  .accountFormExpanded textarea,
+  .accountFormExpanded button {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .footerMain {
+    grid-template-columns: 1fr;
+  }
+
+  .footerLinks {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footerBottom {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .bitlyShell {
+    padding-top: 14px;
+  }
+
+  .cleanTopNav.mobileCleanTopNav {
+    width: calc(100% - 24px);
+    min-height: 62px;
+    padding: 10px;
+    border-radius: 20px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) 96px;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mobileThemeLeft {
+    width: 40px;
+    height: 40px;
+    flex-basis: auto;
+    justify-self: start;
+  }
+
+  .mobileBrand {
+    justify-self: start;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .mobileBrand img {
+    width: 31px;
+    height: 31px;
+    flex: 0 0 auto;
+  }
+
+  .mobileBrand span {
+    font-size: 19px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cleanNavLinks {
+    display: none;
+  }
+
+  .mobileNavActions {
+    margin-left: 0;
+    justify-self: end;
+    min-width: 0;
+  }
+
+  .cleanAccountPill {
+    display: none;
+  }
+
+  .fixedAuthButton {
+    width: 96px;
+    height: 40px;
+    flex-basis: auto;
+    font-size: 13px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pricingSection {
+    padding: 0 16px;
+  }
+
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .priceLine strong {
+    font-size: 34px;
+  }
+
+  .analyticsSummaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .qrPanel .dashboardHeader {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 560px) {
+  .specialFooter {
+    padding-inline: 16px;
+  }
+
+  .footerMain {
+    padding: 24px;
+    border-radius: 22px;
+  }
+
+  .footerLinks {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .cleanTopNav.mobileCleanTopNav {
+    width: calc(100% - 18px);
+    grid-template-columns: 38px minmax(0, 1fr) 86px;
+    gap: 7px;
+    padding: 9px;
+  }
+
+  .mobileThemeLeft {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .mobileBrand img {
+    width: 29px;
+    height: 29px;
+  }
+
+  .mobileBrand span {
+    font-size: 18px;
+  }
+
+  .fixedAuthButton {
+    width: 86px;
+    height: 38px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 340px) {
+  .cleanTopNav.mobileCleanTopNav {
+    grid-template-columns: 36px minmax(0, 1fr) 78px;
+    width: calc(100% - 14px);
+  }
+
+  .mobileThemeLeft {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mobileBrand span {
+    display: none;
+  }
+
+  .fixedAuthButton {
+    width: 78px;
+    height: 36px;
+    font-size: 11px;
+  }
+}
+.currentPlanCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin: 0 0 22px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.12), transparent 32%),
+    var(--surface);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.currentPlanCard h3 {
+  margin: 4px 0 6px;
+  color: var(--text);
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+.currentPlanCard span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.currentPlanCard > div:last-child {
+  display: grid;
+  gap: 6px;
+  text-align: right;
+}
+
+.currentPlanCard > div:last-child strong {
+  color: var(--text);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+@media (max-width: 760px) {
+  .currentPlanCard {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .currentPlanCard > div:last-child {
+    text-align: left;
+  }
+}
+.pricingUpgradeHeader {
+  margin-top: 34px;
+}
+
+.paidPlanNotice {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface-2);
+}
+
+.paidPlanNotice strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.paidPlanNotice span {
+  color: var(--muted);
+  line-height: 1.5;
+}
