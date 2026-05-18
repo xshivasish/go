@@ -251,6 +251,10 @@ function App() {
   const accessToken = auth.user?.access_token;
   const isSignedIn = auth.isAuthenticated;
 
+  const identityProvider = getIdentityProvider();
+  const isGoogleUser = identityProvider.toLowerCase() === "google";
+  const isExternalProviderUser = Boolean(identityProvider);
+
   const stats = useMemo(() => {
     const totalClicks = links.reduce((sum, link) => sum + (link.clickCount || 0), 0);
     const activeLinks = links.filter((link) => link.status === "active").length;
@@ -276,6 +280,28 @@ function App() {
       setCurrentPlan(null);
     }
   }, [auth.isAuthenticated]);
+
+  function getIdentityProvider() {
+    const profile = auth.user?.profile as Record<string, unknown> | undefined;
+    const identitiesValue = profile?.identities;
+
+    if (!identitiesValue) return "";
+
+    try {
+      const identities =
+        typeof identitiesValue === "string"
+          ? JSON.parse(identitiesValue)
+          : identitiesValue;
+
+      if (Array.isArray(identities) && identities.length > 0) {
+        return String(identities[0]?.providerName || "");
+      }
+
+      return "";
+    } catch {
+      return "";
+    }
+  }
 
   async function apiCall(path: string, options: RequestInit = {}) {
     const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -755,6 +781,11 @@ function App() {
   }
 
   async function changePassword() {
+    if (isExternalProviderUser) {
+      showError("Password is managed by your social login provider.");
+      return;
+    }
+
     if (!token || !accessToken) {
       showError("Please sign in again.");
       return;
@@ -799,6 +830,11 @@ function App() {
   }
 
   async function changeEmail() {
+    if (isExternalProviderUser) {
+      showError("Email is managed by your social login provider.");
+      return;
+    }
+
     if (!token || !accessToken) {
       showError("Please sign in again.");
       return;
@@ -833,6 +869,11 @@ function App() {
   }
 
   async function verifyEmailChange() {
+    if (isExternalProviderUser) {
+      showError("Email is managed by your social login provider.");
+      return;
+    }
+
     if (!token || !accessToken) {
       showError("Please sign in again.");
       return;
@@ -1505,91 +1546,133 @@ function App() {
                 <p>Signed in as</p>
                 <strong>{auth.user?.profile.email || "Unknown email"}</strong>
                 <span>{auth.user?.profile.sub}</span>
+
+                {identityProvider && (
+                  <p>
+                    Login provider: <strong>{identityProvider}</strong>
+                  </p>
+                )}
               </article>
 
-              <article className="settingsCard">
-                <h3>Change password</h3>
-                <p>Password changes are available for email/password accounts.</p>
+              {isExternalProviderUser ? (
+                <article className="settingsCard">
+                  <h3>{isGoogleUser ? "Google account" : "Social login account"}</h3>
+                  <p>
+                    You signed in with {identityProvider}. Your password and email
+                    are managed by {identityProvider}, not Go.
+                  </p>
 
-                <input
-                  type="password"
-                  value={oldPassword}
-                  onChange={(event) => setOldPassword(event.target.value)}
-                  placeholder="Current password"
-                />
+                  <p>
+                    You can still delete your Go account below. Deleting your Go
+                    account will remove your Go links, analytics, and billing record,
+                    but it will not delete your {identityProvider} account.
+                  </p>
 
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  placeholder="New password"
-                />
+                  {isGoogleUser && (
+                    <a
+                      className="outlineButton anchorButton"
+                      href="https://myaccount.google.com/security"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open Google security settings
+                    </a>
+                  )}
+                </article>
+              ) : (
+                <>
+                  <article className="settingsCard">
+                    <h3>Change password</h3>
+                    <p>Password changes are available for email/password accounts.</p>
 
-                <input
-                  type="password"
-                  value={confirmNewPassword}
-                  onChange={(event) => setConfirmNewPassword(event.target.value)}
-                  placeholder="Confirm new password"
-                />
+                    <input
+                      type="password"
+                      value={oldPassword}
+                      onChange={(event) => setOldPassword(event.target.value)}
+                      placeholder="Current password"
+                    />
 
-                <button
-                  className="primaryButton"
-                  disabled={accountActionLoading === "password"}
-                  onClick={changePassword}
-                >
-                  {accountActionLoading === "password"
-                    ? "Updating..."
-                    : "Change password"}
-                </button>
-              </article>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(event) => setNewPassword(event.target.value)}
+                      placeholder="New password"
+                    />
 
-              <article className="settingsCard">
-                <h3>Change email</h3>
-                <p>
-                  Enter a new email. Cognito will send a verification code before the
-                  change is completed.
-                </p>
+                    <input
+                      type="password"
+                      value={confirmNewPassword}
+                      onChange={(event) => setConfirmNewPassword(event.target.value)}
+                      placeholder="Confirm new password"
+                    />
 
-                <input
-                  type="email"
-                  value={newEmail}
-                  onChange={(event) => setNewEmail(event.target.value)}
-                  placeholder="New email address"
-                />
+                    <button
+                      className="primaryButton"
+                      disabled={accountActionLoading === "password"}
+                      onClick={changePassword}
+                    >
+                      {accountActionLoading === "password"
+                        ? "Updating..."
+                        : "Change password"}
+                    </button>
+                  </article>
 
-                <button
-                  className="outlineButton"
-                  disabled={accountActionLoading === "email"}
-                  onClick={changeEmail}
-                >
-                  {accountActionLoading === "email"
-                    ? "Sending..."
-                    : "Send verification code"}
-                </button>
+                  <article className="settingsCard">
+                    <h3>Change email</h3>
+                    <p>
+                      Enter a new email. Cognito will send a verification code before
+                      the change is completed.
+                    </p>
 
-                <input
-                  value={emailVerificationCode}
-                  onChange={(event) => setEmailVerificationCode(event.target.value)}
-                  placeholder="Verification code"
-                />
+                    <input
+                      type="email"
+                      value={newEmail}
+                      onChange={(event) => setNewEmail(event.target.value)}
+                      placeholder="New email address"
+                    />
 
-                <button
-                  className="primaryButton"
-                  disabled={accountActionLoading === "verify-email"}
-                  onClick={verifyEmailChange}
-                >
-                  {accountActionLoading === "verify-email"
-                    ? "Verifying..."
-                    : "Verify email"}
-                </button>
-              </article>
+                    <button
+                      className="outlineButton"
+                      disabled={accountActionLoading === "email"}
+                      onClick={changeEmail}
+                    >
+                      {accountActionLoading === "email"
+                        ? "Sending..."
+                        : "Send verification code"}
+                    </button>
+
+                    <input
+                      value={emailVerificationCode}
+                      onChange={(event) => setEmailVerificationCode(event.target.value)}
+                      placeholder="Verification code"
+                    />
+
+                    <button
+                      className="primaryButton"
+                      disabled={accountActionLoading === "verify-email"}
+                      onClick={verifyEmailChange}
+                    >
+                      {accountActionLoading === "verify-email"
+                        ? "Verifying..."
+                        : "Verify email"}
+                    </button>
+                  </article>
+                </>
+              )}
 
               <article className="settingsCard dangerSettingsCard">
                 <h3>Delete account</h3>
                 <p>
-                  This permanently deletes your account, links, click history, and
+                  This permanently deletes your Go account, links, click history, and
                   billing record. This action cannot be undone.
                 </p>
+
+                {isExternalProviderUser && (
+                  <p>
+                    This will not delete your {identityProvider} account. It only
+                    deletes your Go by 17Bytes account data.
+                  </p>
+                )}
 
                 <input
                   value={deleteConfirmation}
