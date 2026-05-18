@@ -19,48 +19,24 @@ a {
 }
 
 .bitlyShell {
-  --bg: #fff7ed;
+  --bg: #ffffff;
   --surface: #ffffff;
-  --surface-2: #ffedd5;
-  --text: #1f1300;
-  --muted: #8a4b16;
-  --border: rgba(255, 107, 0, 0.22);
-  --primary: #ff6b00;
-  --primary-hover: #e85f00;
+  --surface-2: #f8fafc;
+  --text: #17233c;
+  --muted: #5c667a;
+  --border: #dfe3ea;
+  --primary: #0052cc;
+  --primary-hover: #003d99;
   --orange: #ff6b00;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --shadow: 0 18px 45px rgba(255, 107, 0, 0.16);
+  --danger: #d92d20;
+  --success: #0f9f6e;
+  --warning: #b54708;
+  --shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
 
   min-height: 100vh;
   padding-top: 24px;
   color: var(--text);
-  background:
-    radial-gradient(circle at top left, rgba(255, 107, 0, 0.16), transparent 34%),
-    radial-gradient(circle at top right, rgba(255, 170, 64, 0.18), transparent 30%),
-    #fff7ed;
-}
-
-.bitlyShell.light {
-  --bg: #fff7ed;
-  --surface: #ffffff;
-  --surface-2: #ffedd5;
-  --text: #1f1300;
-  --muted: #8a4b16;
-  --border: rgba(255, 107, 0, 0.22);
-  --primary: #ff6b00;
-  --primary-hover: #e85f00;
-  --orange: #ff6b00;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --warning: #f59e0b;
-  --shadow: 0 18px 45px rgba(255, 107, 0, 0.16);
-
-  background:
-    radial-gradient(circle at top left, rgba(255, 107, 0, 0.16), transparent 34%),
-    radial-gradient(circle at top right, rgba(255, 170, 64, 0.18), transparent 30%),
-    #fff7ed;
+  background: var(--bg);
 }
 
 .bitlyShell.dark {
@@ -92,14 +68,13 @@ a {
   gap: 18px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.88);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
   backdrop-filter: blur(18px);
-  box-shadow: 0 18px 42px rgba(255, 107, 0, 0.12);
+  box-sizing: border-box;
 }
 
 .bitlyShell.dark .topNav {
   background: rgba(5, 5, 5, 0.92);
-  box-shadow: none;
 }
 
 .brand {
@@ -179,8 +154,8 @@ a {
   flex: 0 0 42px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  color: #8a3b00;
-  background: #fff7ed;
+  color: var(--text);
+  background: var(--surface-2);
   font-size: 18px;
   cursor: pointer;
   transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
@@ -189,21 +164,8 @@ a {
 .iconThemeButton:hover,
 .settingsIconButton:hover {
   transform: translateY(-1px);
-  border-color: rgba(255, 107, 0, 0.5);
-  background: #ffedd5;
-}
-
-.bitlyShell.dark .iconThemeButton,
-.bitlyShell.dark .settingsIconButton {
-  background: #0a0a0a;
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.bitlyShell.dark .iconThemeButton:hover,
-.bitlyShell.dark .settingsIconButton:hover {
-  background: #111111;
   border-color: var(--primary);
+  background: var(--surface);
 }
 
 .fixedAuthButton {
@@ -250,32 +212,20 @@ a {
 }
 
 .outlineButton {
-  border: 1px solid rgba(255, 107, 0, 0.28);
-  color: #8a3b00;
-  background: #fff7ed;
-}
-
-.outlineButton:hover {
-  border-color: rgba(255, 107, 0, 0.5);
-  color: #c2410c;
-  background: #ffedd5;
-}
-
-.bitlyShell.dark .outlineButton {
-  border-color: var(--border);
+  border: 1px solid var(--border);
   color: var(--text);
   background: var(--surface);
 }
 
-.bitlyShell.dark .outlineButton:hover {
+.outlineButton:hover {
   border-color: var(--primary);
   color: var(--primary);
 }
 
 .dangerButton {
-  border: 1px solid rgba(220, 38, 38, 0.24);
+  border: 1px solid rgba(217, 45, 32, 0.24);
   color: var(--danger);
-  background: rgba(220, 38, 38, 0.08);
+  background: rgba(217, 45, 32, 0.08);
 }
 
 .primaryButton:hover,
@@ -311,10 +261,10 @@ textarea {
   width: 100%;
   min-width: 0;
   padding: 15px 16px;
-  border: 1px solid rgba(255, 107, 0, 0.24);
+  border: 1px solid var(--border);
   border-radius: 10px;
   color: var(--text);
-  background: #ffffff;
+  background: var(--surface);
   font: inherit;
   outline: none;
 }
@@ -327,7 +277,6 @@ textarea {
 .bitlyShell.dark input,
 .bitlyShell.dark textarea {
   background: #000000;
-  border-color: var(--border);
 }
 
 input::placeholder,
@@ -338,7 +287,7 @@ textarea::placeholder {
 input:focus,
 textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.14);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 /* Hero */
@@ -352,16 +301,11 @@ textarea:focus {
 .heroLabel,
 .sectionKicker {
   margin: 0;
-  color: #c2410c;
+  color: var(--orange);
   font-size: 14px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.11em;
-}
-
-.bitlyShell.dark .heroLabel,
-.bitlyShell.dark .sectionKicker {
-  color: var(--orange);
 }
 
 .hero h1 {
@@ -396,7 +340,7 @@ textarea:focus {
   padding: 28px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -426,10 +370,9 @@ textarea:focus {
   display: inline-flex;
   align-items: center;
   padding: 7px 11px;
-  border: 1px solid rgba(255, 107, 0, 0.28);
   border-radius: 999px;
-  color: #c2410c !important;
-  background: #ffedd5;
+  color: var(--success) !important;
+  background: color-mix(in srgb, var(--success) 12%, transparent);
   font-weight: 900;
   font-size: 13px;
 }
@@ -464,14 +407,14 @@ textarea:focus {
 
 .successBox {
   color: var(--success);
-  background: rgba(22, 163, 74, 0.1);
-  border: 1px solid rgba(22, 163, 74, 0.2);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 22%, transparent);
 }
 
 .errorBox {
   color: var(--danger);
-  background: rgba(220, 38, 38, 0.1);
-  border: 1px solid rgba(220, 38, 38, 0.2);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 20%, transparent);
 }
 
 .resultBox {
@@ -482,7 +425,7 @@ textarea:focus {
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -501,14 +444,10 @@ textarea:focus {
 }
 
 .resultBox a {
-  color: #c2410c;
+  color: var(--primary);
   font-size: 24px;
   font-weight: 900;
   word-break: break-all;
-}
-
-.bitlyShell.dark .resultBox a {
-  color: var(--primary);
 }
 
 .resultBox small {
@@ -526,9 +465,9 @@ textarea:focus {
 
 .features article {
   padding: 26px;
-  border: 1px solid rgba(255, 107, 0, 0.18);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background: #fffaf5;
+  background: var(--surface);
 }
 
 .features span {
@@ -557,7 +496,7 @@ textarea:focus {
   padding: 28px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -625,7 +564,7 @@ textarea:focus {
   border-radius: 22px;
   background:
     radial-gradient(circle at top left, rgba(255, 107, 0, 0.12), transparent 32%),
-    rgba(255, 255, 255, 0.9);
+    var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -672,34 +611,27 @@ textarea:focus {
   padding: 24px;
   border: 1px solid var(--border);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
 .highlightedPricingCard {
-  border-color: rgba(255, 107, 0, 0.45);
+  border-color: var(--primary);
   background:
-    linear-gradient(180deg, rgba(255, 107, 0, 0.12), rgba(255, 237, 213, 0.95)),
-    #fff7ed;
+    radial-gradient(circle at top right, color-mix(in srgb, var(--primary) 15%, transparent), transparent 36%),
+    var(--surface);
 }
 
 .pricingBadge {
   width: fit-content;
   padding: 7px 10px;
-  border: 1px solid rgba(255, 107, 0, 0.28);
   border-radius: 999px;
-  color: #c2410c;
-  background: #ffedd5;
+  color: #ffffff;
+  background: var(--primary);
   font-size: 12px;
   font-weight: 950;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-}
-
-.bitlyShell.dark .pricingBadge {
-  color: #ffffff;
-  background: var(--primary);
-  border-color: var(--primary);
 }
 
 .pricingCard h3 {
@@ -770,7 +702,7 @@ textarea:focus {
   padding: 20px 22px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: #ffedd5;
+  background: var(--surface-2);
 }
 
 .paidPlanNotice strong {
@@ -796,8 +728,7 @@ textarea:focus {
   padding: 20px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 18px 42px rgba(255, 107, 0, 0.12);
+  background: var(--surface);
 }
 
 .statsGrid span {
@@ -818,7 +749,7 @@ textarea:focus {
   padding: 28px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -835,7 +766,7 @@ textarea:focus {
   border: 1px dashed var(--border);
   border-radius: 14px;
   color: var(--muted);
-  background: #ffedd5;
+  background: var(--surface-2);
 }
 
 .linkTable {
@@ -855,7 +786,7 @@ textarea:focus {
 .tableHead {
   padding: 13px 16px;
   color: var(--muted);
-  background: #ffedd5;
+  background: var(--surface-2);
   font-size: 13px;
   font-weight: 900;
   text-transform: uppercase;
@@ -865,7 +796,7 @@ textarea:focus {
 .linkRow {
   padding: 18px 16px;
   border-top: 1px solid var(--border);
-  background: #fffaf5;
+  background: var(--surface);
 }
 
 .linkCell,
@@ -880,13 +811,9 @@ textarea:focus {
 }
 
 .linkCell a {
-  color: #c2410c;
+  color: var(--primary);
   font-weight: 800;
   word-break: break-all;
-}
-
-.bitlyShell.dark .linkCell a {
-  color: var(--primary);
 }
 
 .destinationCell {
@@ -911,12 +838,12 @@ textarea:focus {
 
 .statusBadge.active {
   color: var(--success);
-  background: rgba(22, 163, 74, 0.12);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
 }
 
 .statusBadge.inactive {
   color: var(--warning);
-  background: rgba(245, 158, 11, 0.14);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
 }
 
 .performanceCell strong {
@@ -989,7 +916,7 @@ textarea:focus {
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #fffaf5;
+  background: var(--surface-2);
 }
 
 .analyticsSummaryGrid span {
@@ -1018,6 +945,7 @@ textarea:focus {
 
 .breakdownCard {
   padding: 20px;
+  background: var(--surface);
 }
 
 .breakdownCard h3 {
@@ -1083,7 +1011,7 @@ textarea:focus {
   padding: 15px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: #fffaf5;
+  background: var(--surface-2);
 }
 
 .clickRow span,
@@ -1108,7 +1036,7 @@ textarea:focus {
   border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--muted);
-  background: #ffedd5;
+  background: var(--surface-2);
   font-weight: 800;
 }
 
@@ -1155,7 +1083,7 @@ textarea:focus {
   padding: 24px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -1183,10 +1111,10 @@ textarea:focus {
 }
 
 .dangerSettingsCard {
-  border-color: rgba(220, 38, 38, 0.45);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
   background:
-    radial-gradient(circle at top right, rgba(220, 38, 38, 0.12), transparent 34%),
-    rgba(255, 255, 255, 0.9);
+    radial-gradient(circle at top right, color-mix(in srgb, var(--danger) 12%, transparent), transparent 34%),
+    var(--surface);
 }
 
 .dangerSettingsCard h3 {
@@ -1208,8 +1136,8 @@ textarea:focus {
   border: 1px solid var(--border);
   border-radius: 28px;
   background:
-    radial-gradient(circle at top left, rgba(255, 107, 0, 0.14), transparent 34%),
-    linear-gradient(135deg, #ffffff, #ffedd5);
+    radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 13%, transparent), transparent 34%),
+    linear-gradient(135deg, var(--surface), var(--surface-2));
   box-shadow: var(--shadow);
 }
 
@@ -1280,7 +1208,7 @@ textarea:focus {
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--surface);
 }
 
 .footerBadge span {
@@ -1300,17 +1228,6 @@ textarea:focus {
 .footerBadge small {
   color: var(--muted);
   line-height: 1.5;
-  font-weight: 800;
-}
-
-.footerBadge small a {
-  color: var(--primary);
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.footerBadge small a:hover {
-  text-decoration: underline;
 }
 
 .footerBottom {
@@ -1321,37 +1238,6 @@ textarea:focus {
   color: var(--muted);
   font-size: 14px;
   font-weight: 700;
-}
-
-/* xCentury footer logo */
-.xcenturyFooterBadge {
-  display: grid;
-  gap: 14px;
-  align-content: center;
-  justify-items: start;
-}
-
-.xcenturyFooterLogo {
-  width: min(260px, 100%);
-  height: auto;
-  display: block;
-  object-fit: contain;
-}
-
-.xcenturyLogoDark {
-  display: none;
-}
-
-.xcenturyLogoLight {
-  display: block;
-}
-
-.bitlyShell.dark .xcenturyLogoDark {
-  display: block;
-}
-
-.bitlyShell.dark .xcenturyLogoLight {
-  display: none;
 }
 
 /* Dark-mode pure black polish */
@@ -1372,25 +1258,17 @@ textarea:focus {
   background-color: #050505;
 }
 
-.bitlyShell.dark .linkRow,
-.bitlyShell.dark .clickRow,
-.bitlyShell.dark .features article,
-.bitlyShell.dark .breakdownCard {
-  background: #050505;
-  border-color: var(--border);
-}
-
-.bitlyShell.dark .tableHead,
-.bitlyShell.dark .emptyState,
-.bitlyShell.dark .clickMeta small {
+.bitlyShell.dark .iconThemeButton,
+.bitlyShell.dark .settingsIconButton {
   background: #0a0a0a;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
-.bitlyShell.dark .highlightedPricingCard {
+.bitlyShell.dark .iconThemeButton:hover,
+.bitlyShell.dark .settingsIconButton:hover {
+  background: #111111;
   border-color: var(--primary);
-  background:
-    radial-gradient(circle at top right, rgba(255, 107, 0, 0.15), transparent 36%),
-    #050505;
 }
 
 /* Responsive */
@@ -1442,10 +1320,6 @@ textarea:focus {
 
   .accountSettingsGrid {
     grid-template-columns: 1fr;
-  }
-
-  .xcenturyFooterLogo {
-    width: min(240px, 100%);
   }
 }
 
@@ -1615,10 +1489,6 @@ textarea:focus {
   .footerLinks {
     grid-template-columns: 1fr;
   }
-
-  .xcenturyFooterLogo {
-    width: min(220px, 100%);
-  }
 }
 
 @media (max-width: 420px) {
@@ -1675,4 +1545,967 @@ textarea:focus {
     flex-basis: 76px;
     font-size: 11px;
   }
+}
+.xcenturyFooterBadge {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+  justify-items: start;
+}
+
+.xcenturyFooterLogo {
+  width: min(260px, 100%);
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.bitlyShell.dark .xcenturyFooterLogo {
+  filter: none;
+}
+
+.xcenturyFooterBadge small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .xcenturyFooterBadge {
+    justify-items: start;
+  }
+
+  .xcenturyFooterLogo {
+    width: min(240px, 100%);
+  }
+}
+
+@media (max-width: 560px) {
+  .xcenturyFooterLogo {
+    width: min(220px, 100%);
+  }
+}
+.xcenturyFooterBadge {
+  display: grid;
+  gap: 14px;
+  align-content: center;
+  justify-items: start;
+}
+
+.xcenturyFooterLogo {
+  width: min(260px, 100%);
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.xcenturyLogoDark {
+  display: none;
+}
+
+.xcenturyLogoLight {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoDark {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoLight {
+  display: none;
+}
+
+.xcenturyFooterBadge small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .xcenturyFooterLogo {
+    width: min(240px, 100%);
+  }
+}
+
+@media (max-width: 560px) {
+  .xcenturyFooterLogo {
+    width: min(220px, 100%);
+  }
+}
+.xcenturyLogoDark {
+  display: none;
+}
+
+.xcenturyLogoLight {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoDark {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoLight {
+  display: none;
+}
+
+/* =========================================================
+   FINAL SAFFRON + MONETIZATION OVERRIDES
+   Keep this block at the bottom of App.css.
+   ========================================================= */
+.bitlyShell,
+.bitlyShell.light {
+  --bg: #fff7ed;
+  --surface: #ffffff;
+  --surface-2: #ffedd5;
+  --text: #1f1300;
+  --muted: #8a4b16;
+  --border: rgba(255, 107, 0, 0.22);
+  --primary: #ff6b00;
+  --primary-hover: #e85f00;
+  --orange: #ff6b00;
+  --danger: #dc2626;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --shadow: 0 18px 45px rgba(255, 107, 0, 0.16);
+
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.16), transparent 34%),
+    radial-gradient(circle at top right, rgba(255, 170, 64, 0.18), transparent 30%),
+    #fff7ed;
+}
+
+.bitlyShell.dark {
+  --bg: #000000;
+  --surface: #050505;
+  --surface-2: #0a0a0a;
+  --text: #ffffff;
+  --muted: #a3a3a3;
+  --border: rgba(255, 255, 255, 0.13);
+  --primary: #ff6b00;
+  --primary-hover: #ff7a1a;
+  --orange: #ff6b00;
+  --danger: #f87171;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --shadow: 0 16px 42px rgba(0, 0, 0, 0.65);
+
+  background: #000000;
+}
+
+.bitlyShell.light .topNav,
+.bitlyShell.light .shortenBox,
+.bitlyShell.light .resultBox,
+.bitlyShell.light .accountCreator,
+.bitlyShell.light .currentPlanCard,
+.bitlyShell.light .pricingCard,
+.bitlyShell.light .statsGrid article,
+.bitlyShell.light .dashboard,
+.bitlyShell.light .analyticsPanel,
+.bitlyShell.light .settingsCard,
+.bitlyShell.light .accountSettingsModal,
+.bitlyShell.light .specialFooter,
+.bitlyShell.light .footerBadge {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 107, 0, 0.2);
+  box-shadow: 0 18px 42px rgba(255, 107, 0, 0.12);
+}
+
+.bitlyShell.light .features article,
+.bitlyShell.light .breakdownCard,
+.bitlyShell.light .linkRow,
+.bitlyShell.light .clickRow,
+.bitlyShell.light .analyticsSummaryGrid article {
+  background: #fffaf5;
+  border-color: rgba(255, 107, 0, 0.18);
+}
+
+.bitlyShell.light .tableHead,
+.bitlyShell.light .emptyState,
+.bitlyShell.light .clickMeta small,
+.bitlyShell.light .paidPlanNotice {
+  background: #ffedd5;
+}
+
+.bitlyShell.light .highlightedPricingCard {
+  background:
+    linear-gradient(180deg, rgba(255, 107, 0, 0.12), rgba(255, 237, 213, 0.95)),
+    #fff7ed;
+  border-color: rgba(255, 107, 0, 0.45);
+}
+
+.bitlyShell.light input,
+.bitlyShell.light textarea,
+.bitlyShell.light select {
+  background: #ffffff;
+  border-color: rgba(255, 107, 0, 0.24);
+  color: #1f1300;
+}
+
+.bitlyShell.light input:focus,
+.bitlyShell.light textarea:focus,
+.bitlyShell.light select:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.14);
+}
+
+.bitlyShell.light .outlineButton,
+.bitlyShell.light .iconThemeButton,
+.bitlyShell.light .settingsIconButton {
+  background: #fff7ed;
+  color: #8a3b00;
+  border-color: rgba(255, 107, 0, 0.28);
+}
+
+.bitlyShell.light .outlineButton:hover,
+.bitlyShell.light .iconThemeButton:hover,
+.bitlyShell.light .settingsIconButton:hover {
+  background: #ffedd5;
+  color: #c2410c;
+  border-color: rgba(255, 107, 0, 0.5);
+}
+
+.bitlyShell.light a,
+.bitlyShell.light .linkCell a,
+.bitlyShell.light .resultBox a {
+  color: #c2410c;
+}
+
+.bitlyShell.light .sectionKicker,
+.bitlyShell.light .heroLabel,
+.bitlyShell.light .saveText,
+.bitlyShell.light .footerBadge span {
+  color: #c2410c;
+}
+
+.bitlyShell.light .pricingBadge,
+.bitlyShell.light .freeBadge {
+  color: #c2410c !important;
+  background: #ffedd5;
+  border: 1px solid rgba(255, 107, 0, 0.28);
+}
+
+.bitlyShell.dark .shortenBox,
+.bitlyShell.dark .features article,
+.bitlyShell.dark .accountCreator,
+.bitlyShell.dark .pricingSection,
+.bitlyShell.dark .dashboard,
+.bitlyShell.dark .analyticsPanel,
+.bitlyShell.dark .settingsCard,
+.bitlyShell.dark .accountSettingsModal,
+.bitlyShell.dark .pricingCard,
+.bitlyShell.dark .resultBox,
+.bitlyShell.dark .statsGrid article,
+.bitlyShell.dark .currentPlanCard,
+.bitlyShell.dark .paidPlanNotice,
+.bitlyShell.dark .footerBadge {
+  background-color: #050505;
+}
+
+.bitlyShell.dark .linkRow,
+.bitlyShell.dark .clickRow,
+.bitlyShell.dark .breakdownCard,
+.bitlyShell.dark .analyticsSummaryGrid article,
+.bitlyShell.dark .lockedFeature,
+.bitlyShell.dark .lockedAnalyticsCard,
+.bitlyShell.dark .lockedTemporaryCard,
+.bitlyShell.dark .aiInsightCard {
+  background: #050505;
+  border-color: var(--border);
+}
+
+.bitlyShell.dark .tableHead,
+.bitlyShell.dark .emptyState,
+.bitlyShell.dark .clickMeta small,
+.bitlyShell.dark .expiryPanel {
+  background: #0a0a0a;
+}
+
+select,
+.expirySelect {
+  width: 100%;
+  min-width: 0;
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-weight: 800;
+  outline: none;
+}
+
+select:disabled,
+option:disabled {
+  color: var(--muted);
+}
+
+.guestInputWithExpiry {
+  grid-template-columns: 1fr 210px auto;
+}
+
+.linkModeGrid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.modeButton {
+  width: 100%;
+}
+
+.expiryPanel {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+
+.expiryPanel label {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.premiumAnalyticsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin: 22px 0 26px;
+}
+
+.aiInsightCard,
+.lockedAnalyticsCard,
+.lockedFeature,
+.lockedTemporaryCard {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.lockedAnalyticsCard,
+.lockedFeature,
+.lockedTemporaryCard {
+  border-style: dashed;
+  background: var(--surface-2);
+  opacity: 0.68;
+  filter: grayscale(0.55);
+  overflow: hidden;
+}
+
+.lockedAnalyticsCard {
+  margin: 0 0 18px;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.lockedTemporaryCard {
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+}
+
+.lockedAnalyticsCard::after,
+.lockedFeature::after,
+.lockedTemporaryCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(128, 128, 128, 0.08) 10px,
+    rgba(128, 128, 128, 0.08) 20px
+  );
+  pointer-events: none;
+}
+
+.aiInsightCard h3,
+.lockedAnalyticsCard h3,
+.lockedFeature h3,
+.lockedTemporaryCard strong {
+  margin: 0;
+  color: var(--text);
+}
+
+.aiInsightCard p,
+.lockedAnalyticsCard p,
+.lockedFeature p,
+.lockedTemporaryCard p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.lockIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+
+.lockedTemporaryCard .lockIcon {
+  margin-bottom: 0;
+}
+
+.lockedAnalyticsCard .primaryButton,
+.lockedFeature .outlineButton,
+.lockedTemporaryCard .outlineButton {
+  position: relative;
+  z-index: 2;
+}
+
+.xcenturyLogoDark {
+  display: none;
+}
+
+.xcenturyLogoLight {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoDark {
+  display: block;
+}
+
+.bitlyShell.dark .xcenturyLogoLight {
+  display: none;
+}
+
+@media (max-width: 1050px) {
+  .premiumAnalyticsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .guestInputWithExpiry,
+  .lockedAnalyticsCard,
+  .lockedTemporaryCard {
+    grid-template-columns: 1fr;
+  }
+
+  .linkModeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .navActions .expirySelect,
+  .expirySelect,
+  select {
+    width: 100%;
+  }
+}
+
+/* Optimized logged-in layout */
+.navTextButton,
+.footerTextButton {
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 850;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.navTextButton:hover,
+.footerTextButton:hover {
+  color: var(--primary);
+}
+
+.footerTextButton {
+  width: fit-content;
+  text-align: left;
+  font-weight: 700;
+}
+
+.premiumLinkSection {
+  margin-top: 34px;
+}
+
+.manageLinksSection {
+  width: min(1180px, calc(100% - 32px));
+  margin: 18px auto 0;
+  padding: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow);
+}
+
+.manageLinksSection h2 {
+  margin: 8px 0;
+  color: var(--text);
+  font-size: 32px;
+  letter-spacing: -0.05em;
+}
+
+.manageLinksSection p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.linkManagerOverlay,
+.analyticsOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 920;
+  display: grid;
+  place-items: start center;
+  padding: 28px 18px;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(10px);
+  overflow: auto;
+}
+
+.analyticsOverlay {
+  z-index: 960;
+}
+
+.linkManagerModal,
+.popupPanel {
+  width: min(1180px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+
+.linkManagerModal {
+  padding: 24px;
+}
+
+.popupPanel {
+  margin: 0;
+}
+
+.linkManagerTop {
+  margin-bottom: 18px;
+  padding: 4px 4px 0;
+}
+
+.linkManagerModal .statsGrid,
+.linkManagerModal .dashboard {
+  width: 100%;
+  max-width: none;
+}
+
+.linkManagerModal .statsGrid {
+  margin: 0 0 18px;
+}
+
+.linkManagerModal .dashboard {
+  margin: 0;
+}
+
+.bitlyShell.dark .manageLinksSection,
+.bitlyShell.dark .linkManagerModal,
+.bitlyShell.dark .popupPanel {
+  background: #050505;
+}
+
+@media (max-width: 760px) {
+  .manageLinksSection {
+    padding: 20px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .manageLinksSection .primaryButton {
+    width: 100%;
+  }
+
+  .linkManagerOverlay,
+  .analyticsOverlay {
+    padding: 12px;
+  }
+
+  .linkManagerModal,
+  .popupPanel {
+    border-radius: 22px;
+  }
+
+  .linkManagerModal {
+    padding: 14px;
+  }
+}
+/* Safe spacing + saffron dark polish patch */
+
+.bitlyShell {
+  padding-top: 28px;
+}
+
+/* Add breathing room below the header without touching every container */
+.topNav {
+  margin-bottom: 36px;
+}
+
+/* Keep app containers centered and not too wide */
+.shortenBox,
+.resultBox,
+.accountCreator,
+.pricingSection,
+.statsGrid,
+.dashboard,
+.analyticsPanel,
+.specialFooter {
+  width: min(1180px, calc(100% - 32px));
+}
+
+/* Saffron glow in dark mode only */
+.bitlyShell.dark {
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.16), transparent 34%),
+    radial-gradient(circle at top right, rgba(255, 170, 64, 0.08), transparent 30%),
+    #000000;
+}
+
+.bitlyShell.dark .topNav,
+.bitlyShell.dark .shortenBox,
+.bitlyShell.dark .resultBox,
+.bitlyShell.dark .accountCreator,
+.bitlyShell.dark .pricingCard,
+.bitlyShell.dark .currentPlanCard,
+.bitlyShell.dark .paidPlanNotice,
+.bitlyShell.dark .statsGrid article,
+.bitlyShell.dark .dashboard,
+.bitlyShell.dark .analyticsPanel,
+.bitlyShell.dark .features article,
+.bitlyShell.dark .settingsCard,
+.bitlyShell.dark .accountSettingsModal,
+.bitlyShell.dark .footerMain,
+.bitlyShell.dark .footerBadge {
+  border-color: rgba(255, 107, 0, 0.22);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.65),
+    0 0 28px rgba(255, 107, 0, 0.07);
+}
+
+.bitlyShell.dark input,
+.bitlyShell.dark textarea,
+.bitlyShell.dark select {
+  border-color: rgba(255, 107, 0, 0.18);
+}
+
+.bitlyShell.dark input:focus,
+.bitlyShell.dark textarea:focus,
+.bitlyShell.dark select:focus {
+  border-color: #ff6b00;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.16);
+}
+
+.bitlyShell.dark .primaryButton {
+  box-shadow: 0 12px 28px rgba(255, 107, 0, 0.2);
+}
+
+@media (max-width: 760px) {
+  .bitlyShell {
+    padding-top: 16px;
+  }
+
+  .topNav {
+    margin-bottom: 26px;
+  }
+}
+/* Emergency layout correction patch */
+
+/* Use consistent page width */
+.hero,
+.features,
+.pricingSection,
+.specialFooter,
+.dashboard,
+.analyticsPanel,
+.accountCreator,
+.statsGrid,
+.resultBox {
+  width: min(1180px, calc(100% - 32px));
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Fix pricing width and spacing */
+.pricingSection {
+  padding: 0;
+  margin-top: 72px;
+  margin-bottom: 72px;
+}
+
+.pricingHeader {
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.pricingGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.pricingCard {
+  min-width: 0;
+}
+
+/* Make pricing note stay with pricing section */
+.pricingNote {
+  width: 100%;
+  margin: 18px 0 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.5;
+}
+
+/* Fix footer positioning */
+.specialFooter {
+  margin-top: 80px;
+  padding: 0 0 34px;
+}
+
+/* Remove awkward top floating footer line behavior */
+.specialFooter .pricingNote,
+footer + .pricingNote,
+.pricingSection + .pricingNote {
+  display: none;
+}
+
+/* Make footer card align perfectly with page */
+.footerMain {
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Better current plan spacing */
+.currentPlanCard {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* Dark mode pricing/footer polish */
+.bitlyShell.dark .pricingSection {
+  background: transparent;
+}
+
+.bitlyShell.dark .pricingCard,
+.bitlyShell.dark .currentPlanCard,
+.bitlyShell.dark .footerMain,
+.bitlyShell.dark .footerBadge {
+  border-color: rgba(255, 107, 0, 0.24);
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.72),
+    0 0 28px rgba(255, 107, 0, 0.08);
+}
+
+.bitlyShell.dark .pricingCard,
+.bitlyShell.dark .currentPlanCard {
+  background:
+    radial-gradient(circle at top right, rgba(255, 107, 0, 0.08), transparent 38%),
+    #050505;
+}
+
+.bitlyShell.dark .highlightedPricingCard {
+  background:
+    radial-gradient(circle at top right, rgba(255, 107, 0, 0.18), transparent 38%),
+    #050505;
+}
+
+/* Mobile fix */
+@media (max-width: 1050px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .pricingSection,
+  .specialFooter {
+    width: calc(100% - 32px);
+  }
+
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .pricingSection {
+    margin-top: 48px;
+    margin-bottom: 56px;
+  }
+
+  .specialFooter {
+    margin-top: 56px;
+  }
+}
+/* Fix pricing-to-footer spacing */
+
+.pricingSection {
+  margin-bottom: 34px !important;
+}
+
+.pricingNote {
+  margin-top: 20px !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.specialFooter {
+  margin-top: 34px !important;
+}
+
+/* If pricing is the section directly before footer, keep them close */
+.pricingSection + .specialFooter {
+  margin-top: 34px !important;
+}
+
+/* Make footer look connected and centered */
+.footerMain {
+  margin-top: 0 !important;
+}
+
+/* Mobile spacing */
+@media (max-width: 760px) {
+  .pricingSection {
+    margin-bottom: 28px !important;
+  }
+
+  .specialFooter {
+    margin-top: 28px !important;
+  }
+
+  .pricingSection + .specialFooter {
+    margin-top: 28px !important;
+  }
+}
+
+/* =========================================================
+   FINAL FIX: remove pricing note + fix pricing/footer spacing
+   ========================================================= */
+.pricingNote {
+  display: none !important;
+}
+
+.pricingSection {
+  width: min(1180px, calc(100% - 32px)) !important;
+  max-width: 1180px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  margin-bottom: 34px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.pricingGrid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.pricingCard {
+  min-width: 0 !important;
+}
+
+.specialFooter {
+  width: min(1180px, calc(100% - 32px)) !important;
+  max-width: 1180px !important;
+  margin: 34px auto 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.footerMain {
+  width: 100% !important;
+  margin: 0 auto !important;
+}
+
+.bitlyShell.dark .pricingCard,
+.bitlyShell.dark .currentPlanCard,
+.bitlyShell.dark .footerMain,
+.bitlyShell.dark .footerBadge {
+  border-color: rgba(255, 107, 0, 0.24) !important;
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.72),
+    0 0 28px rgba(255, 107, 0, 0.08) !important;
+}
+
+@media (max-width: 1050px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .pricingSection,
+  .specialFooter {
+    width: calc(100% - 32px) !important;
+  }
+
+  .pricingGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .pricingSection {
+    margin-bottom: 28px !important;
+  }
+
+  .specialFooter {
+    margin-top: 28px !important;
+  }
+}
+/* Fix footer top white strip / parent background */
+.specialFooter {
+  background: transparent !important;
+  margin-top: 44px !important;
+  padding-top: 0 !important;
+}
+
+/* Make the footer card itself start cleanly */
+.footerMain {
+  margin-top: 0 !important;
+}
+
+/* Remove any accidental top line/glow from footer area */
+.specialFooter::before,
+.footerMain::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Light mode footer should blend with page */
+.bitlyShell.light .specialFooter,
+.bitlyShell .specialFooter {
+  background: transparent !important;
+}
+
+/* Dark mode footer should also blend cleanly */
+.bitlyShell.dark .specialFooter {
+  background: transparent !important;
+}
+/* Force footer wrapper to not create a visible panel */
+.specialFooter {
+  box-shadow: none !important;
+  border: 0 !important;
 }

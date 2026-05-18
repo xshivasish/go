@@ -53,6 +53,9 @@ type LinksResponse = {
 type ClicksResponse = {
   code: string;
   count: number;
+  analyticsLimited?: boolean;
+  visibleClickLimit?: number | null;
+  upgradeMessage?: string;
   summary: AnalyticsSummary;
   clicks: ClickItem[];
 };
@@ -204,17 +207,24 @@ function App() {
   });
 
   const [guestUrl, setGuestUrl] = useState("");
+  const [guestExpiresIn, setGuestExpiresIn] = useState("24h");
 
   const [userUrl, setUserUrl] = useState("");
   const [customCode, setCustomCode] = useState("");
   const [linkTitle, setLinkTitle] = useState("");
   const [linkNotes, setLinkNotes] = useState("");
+  const [userLinkMode, setUserLinkMode] = useState<"permanent" | "temporary">("permanent");
+  const [userExpiresIn, setUserExpiresIn] = useState("24h");
+  const [customExpiresAt, setCustomExpiresAt] = useState("");
 
   const [createdLink, setCreatedLink] = useState<ShortenResponse | null>(null);
   const [links, setLinks] = useState<ShortenResponse[]>([]);
   const [clicks, setClicks] = useState<ClickItem[]>([]);
   const [analyticsSummary, setAnalyticsSummary] =
     useState<AnalyticsSummary>(emptySummary);
+  const [analyticsLimited, setAnalyticsLimited] = useState(false);
+  const [visibleClickLimit, setVisibleClickLimit] = useState<number | null>(null);
+  const [analyticsUpgradeMessage, setAnalyticsUpgradeMessage] = useState("");
 
   const [selectedCode, setSelectedCode] = useState("");
 
@@ -232,6 +242,7 @@ function App() {
   const [billingLoadingPlan, setBillingLoadingPlan] = useState("");
 
   const [showAccountSettings, setShowAccountSettings] = useState(false);
+  const [showLinkManager, setShowLinkManager] = useState(false);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -529,7 +540,10 @@ function App() {
     try {
       const data = (await apiCall("/shorten", {
         method: "POST",
-        body: JSON.stringify({ url: guestUrl }),
+        body: JSON.stringify({
+          url: guestUrl,
+          expiresIn: guestExpiresIn,
+        }),
       })) as ShortenResponse;
 
       setCreatedLink(data);
@@ -545,6 +559,18 @@ function App() {
   async function createPermanentLink() {
     if (!token) {
       showError("Please sign in first.");
+      return;
+    }
+
+    const selectedPremiumExpiry = ["30d", "90d", "1y", "custom"].includes(userExpiresIn);
+
+    if (userLinkMode === "temporary" && selectedPremiumExpiry && !hasPaidPlan()) {
+      showError("Premium temporary expiry is locked on the Free plan. Upgrade to use longer or custom expiry.");
+      return;
+    }
+
+    if (userLinkMode === "temporary" && userExpiresIn === "custom" && !customExpiresAt) {
+      showError("Please select a custom expiry date and time.");
       return;
     }
 
@@ -565,6 +591,12 @@ function App() {
           customCode: normalizedCustomCode || undefined,
           title: linkTitle,
           notes: linkNotes,
+          linkMode: userLinkMode,
+          expiresIn: userLinkMode === "temporary" ? userExpiresIn : undefined,
+          customExpiresAt:
+            userLinkMode === "temporary" && userExpiresIn === "custom"
+              ? customExpiresAt
+              : undefined,
         }),
       })) as ShortenResponse;
 
@@ -573,12 +605,15 @@ function App() {
       setCustomCode("");
       setLinkTitle("");
       setLinkNotes("");
+      setUserLinkMode("permanent");
+      setUserExpiresIn("24h");
+      setCustomExpiresAt("");
 
       await loadLinks();
-      showSuccess("Permanent link created.");
+      showSuccess(userLinkMode === "temporary" ? "Temporary account link created." : "Permanent link created.");
     } catch (error) {
       showError(
-        error instanceof Error ? error.message : "Failed to create permanent link"
+        error instanceof Error ? error.message : "Failed to create account link"
       );
     } finally {
       setLoading(false);
@@ -615,6 +650,9 @@ function App() {
     setSelectedCode(normalizedCode);
     setClicks([]);
     setAnalyticsSummary(emptySummary);
+    setAnalyticsLimited(false);
+    setVisibleClickLimit(null);
+    setAnalyticsUpgradeMessage("");
     setQrCode("");
     setQrSvg("");
     setMessage("");
@@ -629,6 +667,9 @@ function App() {
 
       setClicks(data.clicks || []);
       setAnalyticsSummary(data.summary || emptySummary);
+      setAnalyticsLimited(Boolean(data.analyticsLimited));
+      setVisibleClickLimit(data.visibleClickLimit ?? null);
+      setAnalyticsUpgradeMessage(data.upgradeMessage || "");
     } catch (error) {
       showError(error instanceof Error ? error.message : "Failed to load clicks");
     }
@@ -644,6 +685,9 @@ function App() {
     setSelectedCode("");
     setClicks([]);
     setAnalyticsSummary(emptySummary);
+    setAnalyticsLimited(false);
+    setVisibleClickLimit(null);
+    setAnalyticsUpgradeMessage("");
     setQrLoading(true);
     setMessage("");
 
@@ -771,6 +815,9 @@ function App() {
         setSelectedCode("");
         setClicks([]);
         setAnalyticsSummary(emptySummary);
+        setAnalyticsLimited(false);
+        setVisibleClickLimit(null);
+        setAnalyticsUpgradeMessage("");
       }
 
       if (qrCode.toLowerCase() === normalizedCode) {
@@ -976,12 +1023,16 @@ function App() {
     setLinks([]);
     setClicks([]);
     setAnalyticsSummary(emptySummary);
+    setAnalyticsLimited(false);
+    setVisibleClickLimit(null);
+    setAnalyticsUpgradeMessage("");
     setCurrentPlan(null);
     setSelectedCode("");
     setQrCode("");
     setQrSvg("");
     setMessage("");
     setShowAccountSettings(false);
+    setShowLinkManager(false);
 
     window.location.href = buildLogoutUrl();
   }
@@ -1012,7 +1063,11 @@ function App() {
           <a href="#shorten">Shorten</a>
           <a href="#features">Features</a>
           <a href="#pricing">Pricing</a>
-          {isSignedIn && <a href="#dashboard">Dashboard</a>}
+          {isSignedIn && (
+            <button className="navTextButton" onClick={() => setShowLinkManager(true)}>
+              Manage
+            </button>
+          )}
         </nav>
 
         <div className="navActions cleanNavActions mobileNavActions">
@@ -1079,7 +1134,8 @@ function App() {
         </div>
       </header>
 
-      <section className="hero">
+      {!isSignedIn && (
+        <section className="hero">
         <p className="heroLabel">।। जय श्री राम ।।</p>
         <h1>Short links, big results</h1>
         <p className="heroCopy">
@@ -1100,6 +1156,8 @@ function App() {
         </div>
       </section>
 
+      )}
+
       <section className="shortenBox" id="shorten">
         <div className="shortenTabs">
           <div>
@@ -1110,7 +1168,7 @@ function App() {
           <span className="freeBadge">Free</span>
         </div>
 
-        <div className="guestInput">
+        <div className="guestInput guestInputWithExpiry">
           <input
             value={guestUrl}
             onChange={(event) => setGuestUrl(event.target.value)}
@@ -1121,6 +1179,18 @@ function App() {
               }
             }}
           />
+
+          <select
+            className="expirySelect"
+            value={guestExpiresIn}
+            onChange={(event) => setGuestExpiresIn(event.target.value)}
+            aria-label="Temporary link expiry"
+          >
+            <option value="1h">Expires in 1 hour</option>
+            <option value="6h">Expires in 6 hours</option>
+            <option value="24h">Expires in 24 hours</option>
+            <option value="7d">Expires in 7 days</option>
+          </select>
 
           <button
             className="primaryButton"
@@ -1178,7 +1248,8 @@ function App() {
         </section>
       )}
 
-      <section className="features" id="features">
+      {!isSignedIn && (
+        <section className="features" id="features">
         <article>
           <span>01</span>
           <h3>Create links fast</h3>
@@ -1198,120 +1269,47 @@ function App() {
         </article>
       </section>
 
-      <section className="pricingSection" id="pricing">
-        <div className="pricingHeader">
-          <p className="sectionKicker">Pricing</p>
-          <h2>Simple pricing, like software used to be.</h2>
-          <p>
-            Pay once. Use Go without monthly subscription stress. All prices are in
-            Indian Rupees.
-          </p>
-        </div>
-
-        {isSignedIn && (
-          <div className="currentPlanCard">
-            <div>
-              <p className="sectionKicker">Current plan</p>
-              <h3>
-                {billingStatusLoading
-                  ? "Checking plan..."
-                  : currentPlan?.planName || "Go Free"}
-              </h3>
-              <span>
-                {currentPlan
-                  ? `${currentPlan.displayPrice} · ${currentPlan.status}`
-                  : "₹0 · active"}
-              </span>
-            </div>
-
-            <div>
-              <strong>Access</strong>
-              <span>{formatAccess(currentPlan?.accessUntil)}</span>
-            </div>
-          </div>
-        )}
-
-        {(!isSignedIn || !hasPaidPlan()) && (
-          <>
-            <div className="pricingGrid">
-              {billingPlans.map((plan) => (
-                <article
-                  className={
-                    plan.id === "lifetime"
-                      ? "pricingCard highlightedPricingCard"
-                      : "pricingCard"
-                  }
-                  key={plan.id}
-                >
-                  {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
-
-                  <h3>{plan.name}</h3>
-
-                  <div className="priceLine">
-                    <strong>{plan.price}</strong>
-                    <span>{plan.duration}</span>
-                  </div>
-
-                  {plan.save && <p className="saveText">{plan.save}</p>}
-
-                  <ul>
-                    <li>Unlimited short links under fair use</li>
-                    <li>Custom aliases</li>
-                    <li>QR code generation</li>
-                    <li>Click analytics</li>
-                    <li>Link editing and lifecycle controls</li>
-                  </ul>
-
-                  <button
-                    className={
-                      plan.id === "lifetime"
-                        ? "primaryButton pricingButton"
-                        : "outlineButton pricingButton"
-                    }
-                    disabled={Boolean(billingLoadingPlan)}
-                    onClick={() => buyPlan(plan.id)}
-                  >
-                    {!isSignedIn
-                      ? "Sign in to choose"
-                      : billingLoadingPlan === plan.id
-                        ? "Opening..."
-                        : "Choose plan"}
-                  </button>
-                </article>
-              ))}
-            </div>
-
-            <p className="pricingNote">
-              Payments are processed securely by Razorpay. Fair-use protections
-              apply to prevent spam, abuse, and automated high-volume traffic.
-            </p>
-          </>
-        )}
-
-        {isSignedIn && hasPaidPlan() && (
-          <div className="paidPlanNotice">
-            <strong>You are subscribed.</strong>
-            <span>
-              Your paid plan is active. Pricing cards are hidden because you already
-              have Go access.
-            </span>
-          </div>
-        )}
-      </section>
+      )}
 
       {isSignedIn && (
         <>
-          <section className="accountCreator">
+          <section className="accountCreator premiumLinkSection">
             <div>
-              <p className="sectionKicker">Your account</p>
-              <h2>Create a permanent link</h2>
+              <p className="sectionKicker">Premium links</p>
+              <h2>Create a managed link</h2>
               <p>
-                Permanent links stay in your dashboard and can be edited, paused,
-                measured, or deleted.
+                Create permanent links, or temporary campaign links with controlled
+                expiry. Free users get 10 permanent links total.
               </p>
             </div>
 
             <div className="accountForm accountFormExpanded">
+              <div className="linkModeGrid">
+                <button
+                  type="button"
+                  className={
+                    userLinkMode === "permanent"
+                      ? "primaryButton modeButton"
+                      : "outlineButton modeButton"
+                  }
+                  onClick={() => setUserLinkMode("permanent")}
+                >
+                  Permanent
+                </button>
+
+                <button
+                  type="button"
+                  className={
+                    userLinkMode === "temporary"
+                      ? "primaryButton modeButton"
+                      : "outlineButton modeButton"
+                  }
+                  onClick={() => setUserLinkMode("temporary")}
+                >
+                  Temporary
+                </button>
+              </div>
+
               <input
                 value={userUrl}
                 onChange={(event) => setUserUrl(event.target.value)}
@@ -1330,6 +1328,59 @@ function App() {
                 }
                 placeholder="Custom alias, optional"
               />
+
+              {userLinkMode === "temporary" && (
+                <div className="expiryPanel">
+                  <label>Temporary link expiry</label>
+
+                  <select
+                    className="expirySelect"
+                    value={userExpiresIn}
+                    onChange={(event) => setUserExpiresIn(event.target.value)}
+                  >
+                    <option value="1h">1 hour</option>
+                    <option value="6h">6 hours</option>
+                    <option value="24h">24 hours</option>
+                    <option value="7d">7 days</option>
+                    <option disabled={!hasPaidPlan()} value="30d">
+                      30 days · Premium
+                    </option>
+                    <option disabled={!hasPaidPlan()} value="90d">
+                      90 days · Premium
+                    </option>
+                    <option disabled={!hasPaidPlan()} value="1y">
+                      1 year · Premium
+                    </option>
+                    <option disabled={!hasPaidPlan()} value="custom">
+                      Custom date/time · Premium
+                    </option>
+                  </select>
+
+                  {userExpiresIn === "custom" && hasPaidPlan() && (
+                    <input
+                      type="datetime-local"
+                      value={customExpiresAt}
+                      onChange={(event) => setCustomExpiresAt(event.target.value)}
+                    />
+                  )}
+
+                  {!hasPaidPlan() && (
+                    <div className="lockedTemporaryCard">
+                      <span className="lockIcon">🔒</span>
+                      <div>
+                        <strong>Premium temporary links</strong>
+                        <p>
+                          Longer expiry options and custom expiry are locked on the
+                          Free plan. Upgrade to unlock premium temporary links.
+                        </p>
+                      </div>
+                      <a className="outlineButton anchorButton" href="#pricing">
+                        Upgrade
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <input
                 value={linkTitle}
@@ -1350,12 +1401,62 @@ function App() {
                 disabled={!userUrl || loading}
                 onClick={createPermanentLink}
               >
-                {loading ? "Creating..." : "Create link"}
+                {loading
+                  ? "Creating..."
+                  : userLinkMode === "temporary"
+                    ? "Create temporary link"
+                    : "Create permanent link"}
               </button>
             </div>
           </section>
 
-          <section className="statsGrid">
+
+        </>
+      )}
+
+      {isSignedIn && (
+        <section className="manageLinksSection">
+          <div>
+            <p className="sectionKicker">Manage links</p>
+            <h2>Open your link manager</h2>
+            <p>View all available links, analytics, QR codes, editing, status controls, and deletion from one focused window.</p>
+          </div>
+
+          <button className="primaryButton largeButton" onClick={() => setShowLinkManager(true)}>
+            Manage links
+          </button>
+        </section>
+      )}
+
+      {isSignedIn && showLinkManager && (
+        <section className="linkManagerOverlay">
+          <div className="linkManagerModal">
+            <div className="dashboardHeader linkManagerTop">
+              <div>
+                <p className="sectionKicker">Link manager</p>
+                <h2>Manage your links</h2>
+                <p className="helperText">Copy, analyze, generate QR codes, edit, pause, reactivate, or delete your managed links.</p>
+              </div>
+
+              <button
+                className="outlineButton"
+                onClick={() => {
+                  setShowLinkManager(false);
+                  setSelectedCode("");
+                  setClicks([]);
+                  setAnalyticsSummary(emptySummary);
+                  setAnalyticsLimited(false);
+                  setVisibleClickLimit(null);
+                  setAnalyticsUpgradeMessage("");
+                  setQrCode("");
+                  setQrSvg("");
+                }}
+              >
+                Close manager
+              </button>
+            </div>
+
+            <section className="statsGrid">
             <article>
               <span>Total links</span>
               <strong>{stats.totalLinks}</strong>
@@ -1372,9 +1473,10 @@ function App() {
               <span>Inactive links</span>
               <strong>{stats.inactiveLinks}</strong>
             </article>
-          </section>
+            </section>
 
-          <section className="dashboard" id="dashboard">
+
+            <section className="dashboard" id="dashboard">
             <div className="dashboardHeader">
               <div>
                 <p className="sectionKicker">Dashboard</p>
@@ -1541,9 +1643,106 @@ function App() {
                 ))}
               </div>
             )}
-          </section>
-        </>
+            </section>
+
+          </div>
+        </section>
       )}
+      <section className="pricingSection" id="pricing">
+        <div className="pricingHeader">
+          <p className="sectionKicker">Pricing</p>
+          <h2>Simple pricing, like software used to be.</h2>
+          <p>
+            Pay once. Use Go without monthly subscription stress. All prices are in
+            Indian Rupees.
+          </p>
+        </div>
+
+        {isSignedIn && (
+          <div className="currentPlanCard">
+            <div>
+              <p className="sectionKicker">Current plan</p>
+              <h3>
+                {billingStatusLoading
+                  ? "Checking plan..."
+                  : currentPlan?.planName || "Go Free"}
+              </h3>
+              <span>
+                {currentPlan
+                  ? `${currentPlan.displayPrice} · ${currentPlan.status}`
+                  : "₹0 · active"}
+              </span>
+            </div>
+
+            <div>
+              <strong>Access</strong>
+              <span>{formatAccess(currentPlan?.accessUntil)}</span>
+            </div>
+          </div>
+        )}
+
+        {(!isSignedIn || !hasPaidPlan()) && (
+          <>
+            <div className="pricingGrid">
+              {billingPlans.map((plan) => (
+                <article
+                  className={
+                    plan.id === "lifetime"
+                      ? "pricingCard highlightedPricingCard"
+                      : "pricingCard"
+                  }
+                  key={plan.id}
+                >
+                  {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
+
+                  <h3>{plan.name}</h3>
+
+                  <div className="priceLine">
+                    <strong>{plan.price}</strong>
+                    <span>{plan.duration}</span>
+                  </div>
+
+                  {plan.save && <p className="saveText">{plan.save}</p>}
+
+                  <ul>
+                    <li>Unlimited permanent links under fair use</li>
+                    <li>Full analytics history for every link</li>
+                    <li>Premium temporary links</li>
+                    <li>QR code generation</li>
+                    <li>Future AI insights</li>
+                  </ul>
+
+                  <button
+                    className={
+                      plan.id === "lifetime"
+                        ? "primaryButton pricingButton"
+                        : "outlineButton pricingButton"
+                    }
+                    disabled={Boolean(billingLoadingPlan)}
+                    onClick={() => buyPlan(plan.id)}
+                  >
+                    {!isSignedIn
+                      ? "Sign in to choose"
+                      : billingLoadingPlan === plan.id
+                        ? "Opening..."
+                        : "Choose plan"}
+                  </button>
+                </article>
+              ))}
+            </div>
+</>
+        )}
+
+        {isSignedIn && hasPaidPlan() && (
+          <div className="paidPlanNotice">
+            <strong>You have full Go access.</strong>
+            <span>
+              Your paid plan unlocks unlimited permanent links under fair use, full
+              analytics history, premium temporary links, and future AI insights.
+            </span>
+          </div>
+        )}
+      </section>
 
       {isSignedIn && showAccountSettings && (
         <section className="accountSettingsOverlay">
@@ -1721,7 +1920,8 @@ function App() {
       )}
 
       {isSignedIn && qrCode && (
-        <section className="analyticsPanel qrPanel">
+        <section className="analyticsOverlay">
+          <div className="analyticsPanel qrPanel popupPanel">
           <div className="dashboardHeader">
             <div>
               <p className="sectionKicker">QR Code</p>
@@ -1757,11 +1957,13 @@ function App() {
           ) : (
             <div className="emptyState">No QR code loaded.</div>
           )}
+          </div>
         </section>
       )}
 
       {isSignedIn && selectedCode && (
-        <section className="analyticsPanel">
+        <section className="analyticsOverlay">
+          <div className="analyticsPanel popupPanel">
           <div className="dashboardHeader">
             <div>
               <p className="sectionKicker">Analytics</p>
@@ -1774,6 +1976,9 @@ function App() {
                 setSelectedCode("");
                 setClicks([]);
                 setAnalyticsSummary(emptySummary);
+                setAnalyticsLimited(false);
+                setVisibleClickLimit(null);
+                setAnalyticsUpgradeMessage("");
               }}
             >
               Close
@@ -1846,10 +2051,78 @@ function App() {
             </article>
           </div>
 
+          <div className="premiumAnalyticsGrid">
+            <article className={analyticsLimited ? "lockedFeature" : "aiInsightCard"}>
+              <span className="lockIcon">✨</span>
+              <h3>AI insights</h3>
+              <p>
+                Analyze traffic quality, referrers, devices, campaigns, and link
+                performance with AI-powered recommendations.
+              </p>
+
+              {analyticsLimited && (
+                <a className="outlineButton anchorButton" href="#pricing">
+                  Upgrade to unlock
+                </a>
+              )}
+            </article>
+
+            <article className={analyticsLimited ? "lockedFeature" : "aiInsightCard"}>
+              <span className="lockIcon">📊</span>
+              <h3>Full analytics history</h3>
+              <p>
+                View complete click history, long-term patterns, and detailed
+                analytics for every link.
+              </p>
+
+              {analyticsLimited && (
+                <a className="outlineButton anchorButton" href="#pricing">
+                  Upgrade to unlock
+                </a>
+              )}
+            </article>
+
+            <article className={analyticsLimited ? "lockedFeature" : "aiInsightCard"}>
+              <span className="lockIcon">⬇️</span>
+              <h3>Export analytics</h3>
+              <p>
+                Export click history and performance reports for campaigns, clients,
+                and business records.
+              </p>
+
+              {analyticsLimited && (
+                <a className="outlineButton anchorButton" href="#pricing">
+                  Upgrade to unlock
+                </a>
+              )}
+            </article>
+          </div>
+
           <div className="recentClicksHeader">
             <h3>Recent clicks</h3>
-            <span>{clicks.length} total</span>
+            <span>
+              {analyticsLimited && visibleClickLimit
+                ? `Showing latest ${visibleClickLimit} of ${analyticsSummary.totalClicks}`
+                : `${clicks.length} total`}
+            </span>
           </div>
+
+          {analyticsLimited && (
+            <div className="lockedAnalyticsCard">
+              <div>
+                <span className="lockIcon">🔒</span>
+                <h3>Full click history is locked</h3>
+                <p>
+                  {analyticsUpgradeMessage ||
+                    "Free users can view the latest 10 clicks per link. Upgrade to unlock full analytics history, long-term insights, exports, and future AI analysis."}
+                </p>
+              </div>
+
+              <a className="primaryButton anchorButton" href="#pricing">
+                Upgrade
+              </a>
+            </div>
+          )}
 
           {clicks.length === 0 ? (
             <div className="emptyState">No clicks recorded yet.</div>
@@ -1882,6 +2155,7 @@ function App() {
               ))}
             </div>
           )}
+          </div>
         </section>
       )}
 
@@ -1889,14 +2163,13 @@ function App() {
         <div className="footerMain">
           <div className="footerBrand">
             <a className="footerLogo" href="/">
-              <img src={logo} alt="Go by 17Bytes logo" />
+              <img src={logo} />
               <span>Go by 17Bytes</span>
             </a>
 
-            <strong><p>
-              Create, share, and manage short links with QR codes, custom aliases,
-              and analytics.
-            </p></strong>
+            <p>
+              Create, share, and manage short links with QR codes, custom aliases, and analytics.
+            </p>
           </div>
 
           <div className="footerLinks">
@@ -1905,7 +2178,11 @@ function App() {
               <a href="#shorten">Shorten</a>
               <a href="#features">Features</a>
               <a href="#pricing">Pricing</a>
-              {isSignedIn && <a href="#dashboard">Dashboard</a>}
+              {isSignedIn && (
+                <button className="footerTextButton" onClick={() => setShowLinkManager(true)}>
+                  Manage links
+                </button>
+              )}
             </div>
 
             <div>
@@ -1915,28 +2192,17 @@ function App() {
           </div>
 
           <div className="footerBadge xcenturyFooterBadge">
-            <span>Certified by</span>
-            <img
-              className="xcenturyFooterLogo xcenturyLogoDark"
-              src={xcenturyWhite}
-              alt="xCentury certified"
-            />
-            <img
-              className="xcenturyFooterLogo xcenturyLogoLight"
-              src={xcenturyBlack}
-              alt="xCentury certified"
-            />
+            <span>CERTIFIED BY</span>
+            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} />
+            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} />
           </div>
         </div>
 
         <div className="footerBottom">
-          <span>
-            ©{" "}
-            {new Date().getFullYear() === 2026
-              ? "2026"
-              : `2026–${new Date().getFullYear()}`}{" "}
-            Go by 17Bytes. All rights reserved.
-          </span>
+        <span>
+          © {new Date().getFullYear() === 2026 ? "2026" : `2026–${new Date().getFullYear()}`}{" "}
+          Go by 17Bytes. All rights reserved.
+        </span>
         </div>
       </footer>
     </main>
