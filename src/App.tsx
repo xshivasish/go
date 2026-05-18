@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { buildLogoutUrl } from "./auth";
 import logo from "./assets/0.png";
+import xcenturyWhite from "./assets/5.png";
+import xcenturyBlack from "./assets/6.png";
 import "./App.css";
 
 type Theme = "light" | "dark";
@@ -198,7 +200,7 @@ function App() {
   const auth = useAuth();
 
   const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem("go-theme") as Theme) || "light";
+    return (localStorage.getItem("go-theme") as Theme) || "dark";
   });
 
   const [guestUrl, setGuestUrl] = useState("");
@@ -343,6 +345,10 @@ function App() {
     return text;
   }
 
+  function toggleTheme() {
+    setTheme(theme === "light" ? "dark" : "light");
+  }
+
   function startSignIn() {
     auth.signinRedirect({
       extraQueryParams: {
@@ -472,7 +478,7 @@ function App() {
           email: order.prefill?.email || auth.user?.profile.email || "",
         },
         theme: {
-          color: "#0052cc",
+          color: "#ff6b00",
         },
         handler: async (paymentResponse) => {
           try {
@@ -997,15 +1003,6 @@ function App() {
   return (
     <main className={`bitlyShell ${theme}`}>
       <header className="topNav cleanTopNav mobileCleanTopNav">
-        <button
-          className="iconThemeButton mobileThemeLeft"
-          aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-          title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-        >
-          {theme === "light" ? "🌙" : "☀️"}
-        </button>
-
         <a className="brand cleanBrand mobileBrand" href="/">
           <img src={logo} alt="Go by 17bytes logo" />
           <span>Go</span>
@@ -1014,7 +1011,7 @@ function App() {
         <nav className="desktopLinks cleanNavLinks">
           <a href="#shorten">Shorten</a>
           <a href="#features">Features</a>
-          {isSignedIn && <a href="#pricing">Plan</a>}
+          <a href="#pricing">Pricing</a>
           {isSignedIn && <a href="#dashboard">Dashboard</a>}
         </nav>
 
@@ -1026,6 +1023,19 @@ function App() {
               <span className="accountPill cleanAccountPill">
                 {auth.user?.profile.email || "Signed in"}
               </span>
+
+              <button
+                className="iconThemeButton"
+                aria-label={
+                  theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+                }
+                title={
+                  theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+                }
+                onClick={toggleTheme}
+              >
+                {theme === "light" ? "🌙" : "☀️"}
+              </button>
 
               <button
                 className="settingsIconButton"
@@ -1044,18 +1054,33 @@ function App() {
               </button>
             </>
           ) : (
-            <button
-              className="primaryButton navButton cleanSignButton fixedAuthButton"
-              onClick={startSignIn}
-            >
-              Sign in
-            </button>
+            <>
+              <button
+                className="iconThemeButton"
+                aria-label={
+                  theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+                }
+                title={
+                  theme === "light" ? "Switch to dark mode" : "Switch to light mode"
+                }
+                onClick={toggleTheme}
+              >
+                {theme === "light" ? "🌙" : "☀️"}
+              </button>
+
+              <button
+                className="primaryButton navButton cleanSignButton fixedAuthButton"
+                onClick={startSignIn}
+              >
+                Sign in
+              </button>
+            </>
           )}
         </div>
       </header>
 
       <section className="hero">
-        <p className="heroLabel">Go by 17bytes</p>
+        <p className="heroLabel">।। जय श्री राम ।।</p>
         <h1>Short links, big results</h1>
         <p className="heroCopy">
           A simple link shortener for temporary links, custom aliases, analytics,
@@ -1173,6 +1198,107 @@ function App() {
         </article>
       </section>
 
+      <section className="pricingSection" id="pricing">
+        <div className="pricingHeader">
+          <p className="sectionKicker">Pricing</p>
+          <h2>Simple pricing, like software used to be.</h2>
+          <p>
+            Pay once. Use Go without monthly subscription stress. All prices are in
+            Indian Rupees.
+          </p>
+        </div>
+
+        {isSignedIn && (
+          <div className="currentPlanCard">
+            <div>
+              <p className="sectionKicker">Current plan</p>
+              <h3>
+                {billingStatusLoading
+                  ? "Checking plan..."
+                  : currentPlan?.planName || "Go Free"}
+              </h3>
+              <span>
+                {currentPlan
+                  ? `${currentPlan.displayPrice} · ${currentPlan.status}`
+                  : "₹0 · active"}
+              </span>
+            </div>
+
+            <div>
+              <strong>Access</strong>
+              <span>{formatAccess(currentPlan?.accessUntil)}</span>
+            </div>
+          </div>
+        )}
+
+        {(!isSignedIn || !hasPaidPlan()) && (
+          <>
+            <div className="pricingGrid">
+              {billingPlans.map((plan) => (
+                <article
+                  className={
+                    plan.id === "lifetime"
+                      ? "pricingCard highlightedPricingCard"
+                      : "pricingCard"
+                  }
+                  key={plan.id}
+                >
+                  {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
+
+                  <h3>{plan.name}</h3>
+
+                  <div className="priceLine">
+                    <strong>{plan.price}</strong>
+                    <span>{plan.duration}</span>
+                  </div>
+
+                  {plan.save && <p className="saveText">{plan.save}</p>}
+
+                  <ul>
+                    <li>Unlimited short links under fair use</li>
+                    <li>Custom aliases</li>
+                    <li>QR code generation</li>
+                    <li>Click analytics</li>
+                    <li>Link editing and lifecycle controls</li>
+                  </ul>
+
+                  <button
+                    className={
+                      plan.id === "lifetime"
+                        ? "primaryButton pricingButton"
+                        : "outlineButton pricingButton"
+                    }
+                    disabled={Boolean(billingLoadingPlan)}
+                    onClick={() => buyPlan(plan.id)}
+                  >
+                    {!isSignedIn
+                      ? "Sign in to choose"
+                      : billingLoadingPlan === plan.id
+                        ? "Opening..."
+                        : "Choose plan"}
+                  </button>
+                </article>
+              ))}
+            </div>
+
+            <p className="pricingNote">
+              Payments are processed securely by Razorpay. Fair-use protections
+              apply to prevent spam, abuse, and automated high-volume traffic.
+            </p>
+          </>
+        )}
+
+        {isSignedIn && hasPaidPlan() && (
+          <div className="paidPlanNotice">
+            <strong>You are subscribed.</strong>
+            <span>
+              Your paid plan is active. Pricing cards are hidden because you already
+              have Go access.
+            </span>
+          </div>
+        )}
+      </section>
+
       {isSignedIn && (
         <>
           <section className="accountCreator">
@@ -1227,107 +1353,6 @@ function App() {
                 {loading ? "Creating..." : "Create link"}
               </button>
             </div>
-          </section>
-
-          <section className="pricingSection" id="pricing">
-            <div className="pricingHeader">
-              <p className="sectionKicker">Plan</p>
-              <h2>Your Go access.</h2>
-              <p>
-                Manage your current plan and upgrade only when you are ready. All
-                prices are in Indian Rupees.
-              </p>
-            </div>
-
-            <div className="currentPlanCard">
-              <div>
-                <p className="sectionKicker">Current plan</p>
-                <h3>
-                  {billingStatusLoading
-                    ? "Checking plan..."
-                    : currentPlan?.planName || "Go Free"}
-                </h3>
-                <span>
-                  {currentPlan
-                    ? `${currentPlan.displayPrice} · ${currentPlan.status}`
-                    : "₹0 · active"}
-                </span>
-              </div>
-
-              <div>
-                <strong>Access</strong>
-                <span>{formatAccess(currentPlan?.accessUntil)}</span>
-              </div>
-            </div>
-
-            {!hasPaidPlan() && (
-              <>
-                <div className="pricingHeader pricingUpgradeHeader">
-                  <p className="sectionKicker">Upgrade</p>
-                  <h2>Simple pricing, like software used to be.</h2>
-                  <p>Pay once. Use Go without monthly subscription stress.</p>
-                </div>
-
-                <div className="pricingGrid">
-                  {billingPlans.map((plan) => (
-                    <article
-                      className={
-                        plan.id === "lifetime"
-                          ? "pricingCard highlightedPricingCard"
-                          : "pricingCard"
-                      }
-                      key={plan.id}
-                    >
-                      {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
-
-                      <h3>{plan.name}</h3>
-
-                      <div className="priceLine">
-                        <strong>{plan.price}</strong>
-                        <span>{plan.duration}</span>
-                      </div>
-
-                      {plan.save && <p className="saveText">{plan.save}</p>}
-
-                      <ul>
-                        <li>Unlimited short links under fair use</li>
-                        <li>Custom aliases</li>
-                        <li>QR code generation</li>
-                        <li>Click analytics</li>
-                        <li>Link editing and lifecycle controls</li>
-                      </ul>
-
-                      <button
-                        className={
-                          plan.id === "lifetime"
-                            ? "primaryButton pricingButton"
-                            : "outlineButton pricingButton"
-                        }
-                        disabled={Boolean(billingLoadingPlan)}
-                        onClick={() => buyPlan(plan.id)}
-                      >
-                        {billingLoadingPlan === plan.id ? "Opening..." : "Choose plan"}
-                      </button>
-                    </article>
-                  ))}
-                </div>
-
-                <p className="pricingNote">
-                  Payments are processed securely by Razorpay. Fair-use protections
-                  apply to prevent spam, abuse, and automated high-volume traffic.
-                </p>
-              </>
-            )}
-
-            {hasPaidPlan() && (
-              <div className="paidPlanNotice">
-                <strong>You are subscribed.</strong>
-                <span>
-                  Your paid plan is active. Pricing cards are hidden because you
-                  already have Go access.
-                </span>
-              </div>
-            )}
           </section>
 
           <section className="statsGrid">
@@ -1864,15 +1889,14 @@ function App() {
         <div className="footerMain">
           <div className="footerBrand">
             <a className="footerLogo" href="/">
-              <img src={logo} alt="Go by 17bytes logo" />
-              <span>Go</span>
+              <img src={logo} alt="Go by 17Bytes logo" />
+              <span>Go by 17Bytes</span>
             </a>
 
-            <p>
-              Go by 17Bytes helps you shorten, share, and measure links from one
-              clean dashboard, with custom aliases, QR codes, analytics, and simple
-              link management.
-            </p>
+            <strong><p>
+              Create, share, and manage short links with QR codes, custom aliases,
+              and analytics.
+            </p></strong>
           </div>
 
           <div className="footerLinks">
@@ -1880,33 +1904,39 @@ function App() {
               <strong>Product</strong>
               <a href="#shorten">Shorten</a>
               <a href="#features">Features</a>
-              {isSignedIn && <a href="#pricing">Plan</a>}
+              <a href="#pricing">Pricing</a>
               {isSignedIn && <a href="#dashboard">Dashboard</a>}
             </div>
 
             <div>
-              <strong>Platform</strong>
-              <span>AWS Lambda</span>
-              <span>API Gateway</span>
-              <span>DynamoDB</span>
-              <span>Cognito</span>
-              <span>Cloudflare Pages</span>
+              <strong>About us</strong>
+              <span>17Bytes</span>
             </div>
           </div>
 
-          <div className="footerBadge">
-            <span>Production project</span>
-            <strong>Serverless SaaS</strong>
-            <small>Built with React, Cognito, API Gateway & DynamoDB</small>
+          <div className="footerBadge xcenturyFooterBadge">
+            <span>Certified by</span>
+            <img
+              className="xcenturyFooterLogo xcenturyLogoDark"
+              src={xcenturyWhite}
+              alt="xCentury certified"
+            />
+            <img
+              className="xcenturyFooterLogo xcenturyLogoLight"
+              src={xcenturyBlack}
+              alt="xCentury certified"
+            />
           </div>
         </div>
 
         <div className="footerBottom">
           <span>
-            © {new Date().getFullYear()} 17Bytes. Go is a product of 17Bytes.
-            Certified by xCentury. All rights reserved.
+            ©{" "}
+            {new Date().getFullYear() === 2026
+              ? "2026"
+              : `2026–${new Date().getFullYear()}`}{" "}
+            Go by 17Bytes. All rights reserved.
           </span>
-          <span>Simple pricing. No monthly subscription stress.</span>
         </div>
       </footer>
     </main>
