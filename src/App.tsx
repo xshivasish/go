@@ -219,6 +219,7 @@ function App() {
 
   const [createdLink, setCreatedLink] = useState<ShortenResponse | null>(null);
   const [links, setLinks] = useState<ShortenResponse[]>([]);
+  const [linkSearchQuery, setLinkSearchQuery] = useState("");
   const [clicks, setClicks] = useState<ClickItem[]>([]);
   const [analyticsSummary, setAnalyticsSummary] =
     useState<AnalyticsSummary>(emptySummary);
@@ -280,6 +281,29 @@ function App() {
       inactiveLinks,
     };
   }, [links]);
+
+  const filteredLinks = useMemo(() => {
+    const query = linkSearchQuery.trim().toLowerCase();
+
+    if (!query) return links;
+
+    return links.filter((link) => {
+      const searchableText = [
+        getTitle(link),
+        link.code,
+        link.shortUrl,
+        getDestination(link),
+        getNotes(link),
+        link.status,
+        link.type,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(query);
+    });
+  }, [links, linkSearchQuery]);
 
   useEffect(() => {
     localStorage.setItem("go-theme", theme);
@@ -565,7 +589,7 @@ function App() {
     const selectedPremiumExpiry = ["30d", "90d", "1y", "custom"].includes(userExpiresIn);
 
     if (userLinkMode === "temporary" && selectedPremiumExpiry && !hasPaidPlan()) {
-      showError("Premium temporary expiry is locked on the Free plan. Upgrade to use longer or custom expiry.");
+      showError("Longer expiry options are available on paid plans. Free users can create temporary links up to 7 days.");
       return;
     }
 
@@ -1037,13 +1061,43 @@ function App() {
     window.location.href = buildLogoutUrl();
   }
 
+  function getOrdinalDay(day: number) {
+    if (day > 3 && day < 21) return `${day}th`;
+
+    switch (day % 10) {
+      case 1:
+        return `${day}st`;
+      case 2:
+        return `${day}nd`;
+      case 3:
+        return `${day}rd`;
+      default:
+        return `${day}th`;
+    }
+  }
+
+  function padDatePart(value: number) {
+    return String(value).padStart(2, "0");
+  }
+
   function formatDate(value?: string | null) {
     if (!value) return "Never";
 
-    return new Date(value).toLocaleString(undefined, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "Invalid date";
+
+    const month = date
+      .toLocaleString("en-US", { month: "long", timeZone: "UTC" })
+      .toLowerCase();
+
+    const day = getOrdinalDay(date.getUTCDate());
+    const year = date.getUTCFullYear();
+    const hours = padDatePart(date.getUTCHours());
+    const minutes = padDatePart(date.getUTCMinutes());
+    const seconds = padDatePart(date.getUTCSeconds());
+
+    return `${day} ${month} ${year} ${hours}:${minutes}:${seconds} UTC`;
   }
 
   function copyText(value: string) {
@@ -1137,10 +1191,10 @@ function App() {
       {!isSignedIn && (
         <section className="hero">
         <p className="heroLabel">।। जय श्री राम ।।</p>
-        <h1>Short links, big results</h1>
+        <h1>Short links. Clear insights.</h1>
         <p className="heroCopy">
-          A simple link shortener for temporary links, custom aliases, analytics,
-          QR codes, and full link management.
+          Create temporary links, manage custom aliases, generate QR codes, and
+          track performance from one clean workspace.
         </p>
 
         <div className="heroCtas">
@@ -1161,8 +1215,8 @@ function App() {
       <section className="shortenBox" id="shorten">
         <div className="shortenTabs">
           <div>
-            <strong>Shorten a long link</strong>
-            <span>No account required for temporary links</span>
+            <strong>Create a temporary short link</strong>
+            <span>Choose an expiry time and create a short link in seconds.</span>
           </div>
 
           <span className="freeBadge">Free</span>
@@ -1202,8 +1256,8 @@ function App() {
         </div>
 
         <p className="helperText">
-          Want custom aliases, QR codes, analytics, and permanent links? Sign in and
-          use your dashboard.
+          Need managed links, analytics, QR codes, or custom aliases? Sign in to
+          use your full workspace.
         </p>
       </section>
 
@@ -1235,7 +1289,9 @@ function App() {
             <small>
               {createdLink.type} · {createdLink.status}
               {createdLink.title ? ` · ${createdLink.title}` : ""}
-              {createdLink.expiresAt ? ` · expires ${createdLink.expiresAt}` : ""}
+              {createdLink.expiresAt
+                ? ` · expires ${formatDate(createdLink.expiresAt)}`
+                : ""}
             </small>
           </div>
 
@@ -1275,11 +1331,11 @@ function App() {
         <>
           <section className="accountCreator premiumLinkSection">
             <div>
-              <p className="sectionKicker">Premium links</p>
+              <p className="sectionKicker">Managed links</p>
               <h2>Create a managed link</h2>
               <p>
-                Create permanent links, or temporary campaign links with controlled
-                expiry. Free users get 10 permanent links total.
+                Create permanent links or campaign links with controlled expiry.
+                Free accounts include 10 permanent managed links.
               </p>
             </div>
 
@@ -1368,10 +1424,10 @@ function App() {
                     <div className="lockedTemporaryCard">
                       <span className="lockIcon">🔒</span>
                       <div>
-                        <strong>Premium temporary links</strong>
+                        <strong>Extended temporary links</strong>
                         <p>
-                          Longer expiry options and custom expiry are locked on the
-                          Free plan. Upgrade to unlock premium temporary links.
+                          Free accounts can create temporary links up to 7 days.
+                          Upgrade to unlock 30-day, 90-day, 1-year, and custom expiry options.
                         </p>
                       </div>
                       <a className="outlineButton anchorButton" href="#pricing">
@@ -1418,8 +1474,8 @@ function App() {
         <section className="manageLinksSection">
           <div>
             <p className="sectionKicker">Manage links</p>
-            <h2>Open your link manager</h2>
-            <p>View all available links, analytics, QR codes, editing, status controls, and deletion from one focused window.</p>
+            <h2>Manage your links</h2>
+            <p>Open your link manager to search links, review performance, generate QR codes, edit destinations, update status, or delete links.</p>
           </div>
 
           <button className="primaryButton largeButton" onClick={() => setShowLinkManager(true)}>
@@ -1435,7 +1491,7 @@ function App() {
               <div>
                 <p className="sectionKicker">Link manager</p>
                 <h2>Manage your links</h2>
-                <p className="helperText">Copy, analyze, generate QR codes, edit, pause, reactivate, or delete your managed links.</p>
+                <p className="helperText">Search, copy, analyze, generate QR codes, edit, pause, reactivate, or delete your managed links.</p>
               </div>
 
               <button
@@ -1477,26 +1533,43 @@ function App() {
 
 
             <section className="dashboard" id="dashboard">
-            <div className="dashboardHeader">
+            <div className="dashboardHeader dashboardHeaderWithSearch">
               <div>
                 <p className="sectionKicker">Dashboard</p>
                 <h2>Your links</h2>
+                <p className="helperText">
+                  Search by title, short link, alias, notes, status, type, or destination URL.
+                </p>
               </div>
 
-              <button
-                className="outlineButton"
-                disabled={dashboardLoading}
-                onClick={loadLinks}
-              >
-                {dashboardLoading ? "Refreshing..." : "Refresh"}
-              </button>
+              <div className="dashboardHeaderActions">
+                <input
+                  className="dashboardSearchInput"
+                  value={linkSearchQuery}
+                  onChange={(event) => setLinkSearchQuery(event.target.value)}
+                  placeholder="Search by title, alias, notes, short link, or URL"
+                  aria-label="Search links"
+                />
+
+                <button
+                  className="outlineButton"
+                  disabled={dashboardLoading}
+                  onClick={loadLinks}
+                >
+                  {dashboardLoading ? "Refreshing..." : "Refresh"}
+                </button>
+              </div>
             </div>
 
             {dashboardLoading && links.length === 0 ? (
               <div className="emptyState">Loading your links...</div>
             ) : links.length === 0 ? (
               <div className="emptyState">
-                No permanent links yet. Create your first one above.
+                No managed links yet. Create your first managed link above.
+              </div>
+            ) : filteredLinks.length === 0 ? (
+              <div className="emptyState">
+                No links match “{linkSearchQuery}”. Try a title, alias, note, short link, status, type, or destination URL.
               </div>
             ) : (
               <div className="linkTable">
@@ -1507,7 +1580,7 @@ function App() {
                   <span>Actions</span>
                 </div>
 
-                {links.map((link) => (
+                {filteredLinks.map((link) => (
                   <article className="linkRow" key={link.code}>
                     <div className="linkCell">
                       <span
@@ -1571,9 +1644,18 @@ function App() {
                       ) : (
                         <>
                           <p>{getDestination(link)}</p>
-                          {getNotes(link) && (
-                            <small className="notesText">{getNotes(link)}</small>
-                          )}
+
+                          <div className="linkMetaStack">
+                            <small>
+                              {link.expiresAt
+                                ? `Expires ${formatDate(link.expiresAt)}`
+                                : "Does not expire"}
+                            </small>
+
+                            {getNotes(link) && (
+                              <small className="notesText">{getNotes(link)}</small>
+                            )}
+                          </div>
                         </>
                       )}
                     </div>
@@ -1581,6 +1663,8 @@ function App() {
                     <div className="performanceCell">
                       <strong>{link.clickCount}</strong>
                       <span>clicks</span>
+                      <small>Type: {link.type}</small>
+                      <small>Expires: {link.expiresAt ? formatDate(link.expiresAt) : "Never"}</small>
                       <small>Last click: {formatDate(link.lastClickedAt)}</small>
                     </div>
 
@@ -1651,17 +1735,17 @@ function App() {
       <section className="pricingSection" id="pricing">
         <div className="pricingHeader">
           <p className="sectionKicker">Pricing</p>
-          <h2>Simple pricing, like software used to be.</h2>
+          <h2>Simple one-time access.</h2>
           <p>
-            Pay once. Use Go without monthly subscription stress. All prices are in
-            Indian Rupees.
+            Choose a one-time access plan and use Go without monthly subscription
+            stress. All prices are listed in Indian Rupees.
           </p>
         </div>
 
         {isSignedIn && (
           <div className="currentPlanCard">
             <div>
-              <p className="sectionKicker">Current plan</p>
+              <p className="sectionKicker">Current access</p>
               <h3>
                 {billingStatusLoading
                   ? "Checking plan..."
@@ -1707,7 +1791,7 @@ function App() {
                   <ul>
                     <li>Unlimited permanent links under fair use</li>
                     <li>Full analytics history for every link</li>
-                    <li>Premium temporary links</li>
+                    <li>Extended temporary links</li>
                     <li>QR code generation</li>
                     <li>Future AI insights</li>
                   </ul>
@@ -1730,15 +1814,16 @@ function App() {
                 </article>
               ))}
             </div>
-</>
+
+          </>
         )}
 
         {isSignedIn && hasPaidPlan() && (
           <div className="paidPlanNotice">
-            <strong>You have full Go access.</strong>
+            <strong>Your Go access is active.</strong>
             <span>
-              Your paid plan unlocks unlimited permanent links under fair use, full
-              analytics history, premium temporary links, and future AI insights.
+              Your paid plan includes unlimited permanent links under fair use,
+              full analytics history, extended temporary links, and future AI insights.
             </span>
           </div>
         )}
@@ -1752,7 +1837,7 @@ function App() {
                 <p className="sectionKicker">Account</p>
                 <h2>Account settings</h2>
                 <p className="helperText">
-                  Manage your login, email, password, and account deletion.
+                  Manage your profile, sign-in method, password, email, and account deletion.
                 </p>
               </div>
 
@@ -1766,7 +1851,7 @@ function App() {
 
             <div className="accountSettingsGrid">
               <article className="settingsCard">
-                <h3>Profile</h3>
+                <h3>Account profile</h3>
                 <p>Signed in as</p>
                 <strong>{auth.user?.profile.email || "Unknown email"}</strong>
                 <span>{auth.user?.profile.sub}</span>
@@ -1783,13 +1868,13 @@ function App() {
                   <h3>{isGoogleUser ? "Google account" : "Social login account"}</h3>
                   <p>
                     You signed in with {identityProvider}. Your password and email
-                    are managed by {identityProvider}, not Go.
+                    are managed by {identityProvider}.
                   </p>
 
                   <p>
-                    You can still delete your Go account below. Deleting your Go
-                    account will remove your Go links, analytics, and billing record,
-                    but it will not delete your {identityProvider} account.
+                    You can still delete your Go account below. This removes your
+                    links, analytics, and billing record, but it does not delete your
+                    {identityProvider} account.
                   </p>
 
                   {isGoogleUser && (
@@ -1807,7 +1892,7 @@ function App() {
                 <>
                   <article className="settingsCard">
                     <h3>Change password</h3>
-                    <p>Password changes are available for email/password accounts.</p>
+                    <p>Available for accounts created with email and password.</p>
 
                     <input
                       type="password"
@@ -1844,8 +1929,8 @@ function App() {
                   <article className="settingsCard">
                     <h3>Change email</h3>
                     <p>
-                      Enter a new email. Cognito will send a verification code before
-                      the change is completed.
+                      Enter a new email address. A verification code will be sent
+                      before the change is completed.
                     </p>
 
                     <input
@@ -1887,14 +1972,14 @@ function App() {
               <article className="settingsCard dangerSettingsCard">
                 <h3>Delete account</h3>
                 <p>
-                  This permanently deletes your Go account, links, click history, and
-                  billing record. This action cannot be undone.
+                  This permanently deletes your Go account, managed links, click
+                  history, and billing record. This action cannot be undone.
                 </p>
 
                 {isExternalProviderUser && (
                   <p>
                     This will not delete your {identityProvider} account. It only
-                    deletes your Go by 17Bytes account data.
+                    removes your Go by 17Bytes account data.
                   </p>
                 )}
 
@@ -1926,7 +2011,7 @@ function App() {
             <div>
               <p className="sectionKicker">QR Code</p>
               <h2>{qrCode}</h2>
-              <p className="helperText">Scan or download this QR code as SVG.</p>
+              <p className="helperText">Preview, scan, or download this QR code as an SVG file.</p>
             </div>
 
             <div className="inlineActions">
@@ -2072,7 +2157,7 @@ function App() {
               <h3>Full analytics history</h3>
               <p>
                 View complete click history, long-term patterns, and detailed
-                analytics for every link.
+                analytics for every managed link.
               </p>
 
               {analyticsLimited && (
@@ -2114,7 +2199,7 @@ function App() {
                 <h3>Full click history is locked</h3>
                 <p>
                   {analyticsUpgradeMessage ||
-                    "Free users can view the latest 10 clicks per link. Upgrade to unlock full analytics history, long-term insights, exports, and future AI analysis."}
+                    "Free accounts can view the latest 10 clicks per link. Upgrade to unlock full click history, long-term insights, exports, and future AI analysis."}
                 </p>
               </div>
 
@@ -2163,7 +2248,7 @@ function App() {
         <div className="footerMain">
           <div className="footerBrand">
             <a className="footerLogo" href="/">
-              <img src={logo} />
+              <img src={logo} alt="Go by 17Bytes logo" />
               <span>Go by 17Bytes</span>
             </a>
 
@@ -2193,8 +2278,8 @@ function App() {
 
           <div className="footerBadge xcenturyFooterBadge">
             <span>CERTIFIED BY</span>
-            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} />
-            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} />
+            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} alt="xCentury certification" />
+            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} alt="xCentury certification" />
           </div>
         </div>
 

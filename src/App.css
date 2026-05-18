@@ -2400,112 +2400,97 @@ footer + .pricingNote,
   }
 }
 
-/* =========================================================
-   FINAL FIX: remove pricing note + fix pricing/footer spacing
-   ========================================================= */
+/* Professional copy polish and final UI safety */
 .pricingNote {
   display: none !important;
 }
 
-.pricingSection {
-  width: min(1180px, calc(100% - 32px)) !important;
-  max-width: 1180px !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  margin-bottom: 34px !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
+.bitlyShell {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
 }
 
-.pricingGrid {
-  width: 100% !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 18px !important;
+.heroCopy,
+.helperText,
+.accountCreator p,
+.manageLinksSection p,
+.pricingHeader p,
+.settingsCard p,
+.footerBrand p,
+.breakdownCard p,
+.lockedAnalyticsCard p,
+.lockedFeature p,
+.aiInsightCard p {
+  letter-spacing: 0.005em;
 }
 
-.pricingCard {
-  min-width: 0 !important;
-}
-
-.specialFooter {
-  width: min(1180px, calc(100% - 32px)) !important;
-  max-width: 1180px !important;
-  margin: 34px auto 0 !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.footerMain {
-  width: 100% !important;
-  margin: 0 auto !important;
-}
-
-.bitlyShell.dark .pricingCard,
-.bitlyShell.dark .currentPlanCard,
-.bitlyShell.dark .footerMain,
-.bitlyShell.dark .footerBadge {
-  border-color: rgba(255, 107, 0, 0.24) !important;
-  box-shadow:
-    0 18px 46px rgba(0, 0, 0, 0.72),
-    0 0 28px rgba(255, 107, 0, 0.08) !important;
-}
-
-@media (max-width: 1050px) {
-  .pricingGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 760px) {
-  .pricingSection,
-  .specialFooter {
-    width: calc(100% - 32px) !important;
-  }
-
-  .pricingGrid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .pricingSection {
-    margin-bottom: 28px !important;
-  }
-
-  .specialFooter {
-    margin-top: 28px !important;
-  }
-}
-/* Fix footer top white strip / parent background */
-.specialFooter {
-  background: transparent !important;
-  margin-top: 44px !important;
-  padding-top: 0 !important;
-}
-
-/* Make the footer card itself start cleanly */
 .footerMain {
   margin-top: 0 !important;
 }
 
-/* Remove any accidental top line/glow from footer area */
-.specialFooter::before,
-.footerMain::before {
-  display: none !important;
-  content: none !important;
-}
-
-/* Light mode footer should blend with page */
-.bitlyShell.light .specialFooter,
-.bitlyShell .specialFooter {
+.specialFooter {
   background: transparent !important;
+  padding-top: 0 !important;
+}
+/* Final footer background fix */
+
+.specialFooter {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  margin-top: 44px !important;
+  padding: 0 24px 34px !important;
 }
 
-/* Dark mode footer should also blend cleanly */
+/* Remove the white rectangular wrapper behind the footer */
+.bitlyShell .specialFooter,
+.bitlyShell.light .specialFooter,
 .bitlyShell.dark .specialFooter {
   background: transparent !important;
 }
-/* Force footer wrapper to not create a visible panel */
-.specialFooter {
+
+/* Keep only the footer card styled */
+.footerMain {
+  margin-top: 0 !important;
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.12), transparent 34%),
+    rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(255, 107, 0, 0.22) !important;
+  box-shadow: 0 18px 45px rgba(255, 107, 0, 0.12) !important;
+}
+
+/* Dark footer card */
+.bitlyShell.dark .footerMain {
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.14), transparent 34%),
+    #050505 !important;
+  border-color: rgba(255, 107, 0, 0.24) !important;
+  box-shadow:
+    0 18px 46px rgba(0, 0, 0, 0.7),
+    0 0 28px rgba(255, 107, 0, 0.08) !important;
+}
+
+/* Keep copyright area transparent */
+.footerBottom {
+  background: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
+}
+
+/* Remove any accidental pseudo strip */
+.specialFooter::before,
+.specialFooter::after,
+.footerMain::before,
+.footerMain::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .specialFooter {
+    padding: 0 16px 28px !important;
+    margin-top: 34px !important;
+  }
 }
