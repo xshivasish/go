@@ -229,6 +229,18 @@ function App() {
   const [billingStatusLoading, setBillingStatusLoading] = useState(false);
   const [billingLoadingPlan, setBillingLoadingPlan] = useState("");
 
+  const [showAccountSettings, setShowAccountSettings] = useState(false);
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
+  const [newEmail, setNewEmail] = useState("");
+  const [emailVerificationCode, setEmailVerificationCode] = useState("");
+
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [accountActionLoading, setAccountActionLoading] = useState("");
+
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("error");
 
@@ -236,6 +248,7 @@ function App() {
   const [dashboardLoading, setDashboardLoading] = useState(false);
 
   const token = auth.user?.id_token;
+  const accessToken = auth.user?.access_token;
   const isSignedIn = auth.isAuthenticated;
 
   const stats = useMemo(() => {
@@ -302,6 +315,14 @@ function App() {
     }
 
     return text;
+  }
+
+  function startSignIn() {
+    auth.signinRedirect({
+      extraQueryParams: {
+        prompt: "login",
+      },
+    });
   }
 
   function loadRazorpayScript() {
@@ -390,7 +411,7 @@ function App() {
   async function buyPlan(planId: BillingPlan["id"]) {
     if (!token) {
       showError("Please sign in before buying a plan.");
-      auth.signinRedirect();
+      startSignIn();
       return;
     }
 
@@ -733,6 +754,161 @@ function App() {
     }
   }
 
+  async function changePassword() {
+    if (!token || !accessToken) {
+      showError("Please sign in again.");
+      return;
+    }
+
+    if (!oldPassword || !newPassword || !confirmNewPassword) {
+      showError("Please fill all password fields.");
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      showError("New passwords do not match.");
+      return;
+    }
+
+    setAccountActionLoading("password");
+    setMessage("");
+
+    try {
+      await apiCall("/account/change-password", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accessToken,
+          oldPassword,
+          newPassword,
+        }),
+      });
+
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+
+      showSuccess("Password changed successfully.");
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to change password");
+    } finally {
+      setAccountActionLoading("");
+    }
+  }
+
+  async function changeEmail() {
+    if (!token || !accessToken) {
+      showError("Please sign in again.");
+      return;
+    }
+
+    if (!newEmail) {
+      showError("Please enter a new email.");
+      return;
+    }
+
+    setAccountActionLoading("email");
+    setMessage("");
+
+    try {
+      await apiCall("/account/change-email", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accessToken,
+          newEmail,
+        }),
+      });
+
+      showSuccess("Verification code sent to your new email.");
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to change email");
+    } finally {
+      setAccountActionLoading("");
+    }
+  }
+
+  async function verifyEmailChange() {
+    if (!token || !accessToken) {
+      showError("Please sign in again.");
+      return;
+    }
+
+    if (!emailVerificationCode) {
+      showError("Please enter the verification code.");
+      return;
+    }
+
+    setAccountActionLoading("verify-email");
+    setMessage("");
+
+    try {
+      await apiCall("/account/verify-email", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          accessToken,
+          code: emailVerificationCode,
+        }),
+      });
+
+      setNewEmail("");
+      setEmailVerificationCode("");
+
+      showSuccess("Email verified. Please sign out and sign in again.");
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to verify email");
+    } finally {
+      setAccountActionLoading("");
+    }
+  }
+
+  async function deleteAccount() {
+    if (!token) {
+      showError("Please sign in again.");
+      return;
+    }
+
+    if (deleteConfirmation !== "DELETE") {
+      showError("Type DELETE to confirm account deletion.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      "This will permanently delete your account, links, analytics, and billing record. Continue?"
+    );
+
+    if (!confirmed) return;
+
+    setAccountActionLoading("delete");
+    setMessage("");
+
+    try {
+      await apiCall("/account", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          confirmation: "DELETE",
+        }),
+      });
+
+      await auth.removeUser();
+      window.location.href = buildLogoutUrl();
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to delete account");
+    } finally {
+      setAccountActionLoading("");
+    }
+  }
+
   function startEditing(link: ShortenResponse) {
     setEditingCode(link.code.toLowerCase());
     setEditingUrl(getDestination(link));
@@ -747,8 +923,9 @@ function App() {
     setEditingNotes("");
   }
 
-  function signOut() {
-    auth.removeUser();
+  async function signOut() {
+    await auth.removeUser();
+
     setLinks([]);
     setClicks([]);
     setAnalyticsSummary(emptySummary);
@@ -757,6 +934,8 @@ function App() {
     setQrCode("");
     setQrSvg("");
     setMessage("");
+    setShowAccountSettings(false);
+
     window.location.href = buildLogoutUrl();
   }
 
@@ -808,6 +987,15 @@ function App() {
               </span>
 
               <button
+                className="settingsIconButton"
+                aria-label="Open account settings"
+                title="Account settings"
+                onClick={() => setShowAccountSettings(true)}
+              >
+                ⚙️
+              </button>
+
+              <button
                 className="outlineButton navButton cleanSignButton fixedAuthButton"
                 onClick={signOut}
               >
@@ -817,7 +1005,7 @@ function App() {
           ) : (
             <button
               className="primaryButton navButton cleanSignButton fixedAuthButton"
-              onClick={() => auth.signinRedirect()}
+              onClick={startSignIn}
             >
               Sign in
             </button>
@@ -835,10 +1023,7 @@ function App() {
 
         <div className="heroCtas">
           {!isSignedIn && (
-            <button
-              className="primaryButton largeButton"
-              onClick={() => auth.signinRedirect()}
-            >
+            <button className="primaryButton largeButton" onClick={startSignIn}>
               Get started
             </button>
           )}
@@ -1292,6 +1477,139 @@ function App() {
             )}
           </section>
         </>
+      )}
+
+      {isSignedIn && showAccountSettings && (
+        <section className="accountSettingsOverlay">
+          <div className="accountSettingsModal">
+            <div className="dashboardHeader">
+              <div>
+                <p className="sectionKicker">Account</p>
+                <h2>Account settings</h2>
+                <p className="helperText">
+                  Manage your login, email, password, and account deletion.
+                </p>
+              </div>
+
+              <button
+                className="outlineButton"
+                onClick={() => setShowAccountSettings(false)}
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="accountSettingsGrid">
+              <article className="settingsCard">
+                <h3>Profile</h3>
+                <p>Signed in as</p>
+                <strong>{auth.user?.profile.email || "Unknown email"}</strong>
+                <span>{auth.user?.profile.sub}</span>
+              </article>
+
+              <article className="settingsCard">
+                <h3>Change password</h3>
+                <p>Password changes are available for email/password accounts.</p>
+
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(event) => setOldPassword(event.target.value)}
+                  placeholder="Current password"
+                />
+
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  placeholder="New password"
+                />
+
+                <input
+                  type="password"
+                  value={confirmNewPassword}
+                  onChange={(event) => setConfirmNewPassword(event.target.value)}
+                  placeholder="Confirm new password"
+                />
+
+                <button
+                  className="primaryButton"
+                  disabled={accountActionLoading === "password"}
+                  onClick={changePassword}
+                >
+                  {accountActionLoading === "password"
+                    ? "Updating..."
+                    : "Change password"}
+                </button>
+              </article>
+
+              <article className="settingsCard">
+                <h3>Change email</h3>
+                <p>
+                  Enter a new email. Cognito will send a verification code before the
+                  change is completed.
+                </p>
+
+                <input
+                  type="email"
+                  value={newEmail}
+                  onChange={(event) => setNewEmail(event.target.value)}
+                  placeholder="New email address"
+                />
+
+                <button
+                  className="outlineButton"
+                  disabled={accountActionLoading === "email"}
+                  onClick={changeEmail}
+                >
+                  {accountActionLoading === "email"
+                    ? "Sending..."
+                    : "Send verification code"}
+                </button>
+
+                <input
+                  value={emailVerificationCode}
+                  onChange={(event) => setEmailVerificationCode(event.target.value)}
+                  placeholder="Verification code"
+                />
+
+                <button
+                  className="primaryButton"
+                  disabled={accountActionLoading === "verify-email"}
+                  onClick={verifyEmailChange}
+                >
+                  {accountActionLoading === "verify-email"
+                    ? "Verifying..."
+                    : "Verify email"}
+                </button>
+              </article>
+
+              <article className="settingsCard dangerSettingsCard">
+                <h3>Delete account</h3>
+                <p>
+                  This permanently deletes your account, links, click history, and
+                  billing record. This action cannot be undone.
+                </p>
+
+                <input
+                  value={deleteConfirmation}
+                  onChange={(event) => setDeleteConfirmation(event.target.value)}
+                  placeholder="Type DELETE to confirm"
+                />
+
+                <button
+                  className="dangerButton"
+                  disabled={accountActionLoading === "delete"}
+                  onClick={deleteAccount}
+                >
+                  {accountActionLoading === "delete"
+                    ? "Deleting..."
+                    : "Delete account"}
+                </button>
+              </article>
+            </div>
+          </div>
+        </section>
       )}
 
       {isSignedIn && qrCode && (
