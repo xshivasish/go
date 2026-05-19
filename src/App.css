@@ -2897,3 +2897,126 @@ footer + .pricingNote,
   font-weight: 800 !important;
   letter-spacing: -0.01em !important;
 }
+/* Mobile header scaling fix */
+
+.topNav.cleanTopNav {
+  max-width: 1180px;
+  overflow: hidden;
+}
+
+.brand.cleanBrand {
+  flex-shrink: 0;
+}
+
+.navActions.cleanNavActions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 760px) {
+  .topNav.mobileCleanTopNav {
+    width: calc(100% - 20px) !important;
+    min-height: 58px !important;
+    padding: 9px 10px !important;
+    border-radius: 18px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .mobileBrand {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .mobileBrand img {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+  }
+
+  .mobileBrand span {
+    font-size: 18px !important;
+    max-width: 88px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .mobileNavActions {
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+  }
+
+  .cleanAccountPill {
+    display: none !important;
+  }
+
+  .iconThemeButton,
+  .settingsIconButton {
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+    font-size: 16px !important;
+  }
+
+  .fixedAuthButton {
+    width: 86px !important;
+    height: 38px !important;
+    flex: 0 0 86px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .topNav.mobileCleanTopNav {
+    width: calc(100% - 16px) !important;
+    padding: 8px !important;
+    gap: 6px !important;
+  }
+
+  .mobileBrand img {
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+  }
+
+  .mobileBrand span {
+    font-size: 17px !important;
+    max-width: 58px !important;
+  }
+
+  .iconThemeButton,
+  .settingsIconButton {
+    width: 36px !important;
+    height: 36px !important;
+    flex-basis: 36px !important;
+    font-size: 15px !important;
+  }
+
+  .fixedAuthButton {
+    width: 78px !important;
+    height: 36px !important;
+    flex-basis: 78px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 350px) {
+  .mobileBrand span {
+    display: none !important;
+  }
+
+  .fixedAuthButton {
+    width: 72px !important;
+    flex-basis: 72px !important;
+  }
+}
