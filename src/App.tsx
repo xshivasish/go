@@ -736,6 +736,29 @@ function App() {
     await buyPlan(planId);
   }
 
+  async function getLatestBillingPlan() {
+    if (!token) return null;
+
+    const data = (await apiCall("/billing/me", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })) as BillingMeResponse;
+
+    setCurrentPlan(data.plan);
+
+    return data.plan;
+  }
+
+  function isPaidBillingPlan(plan?: BillingStatus | null) {
+    return (
+      plan?.status === "active" &&
+      Boolean(plan?.plan) &&
+      plan?.plan !== "free"
+    );
+  }
+
   async function buyPlan(planId: BillingPlan["id"]) {
     if (!token) {
       sessionStorage.setItem(PENDING_PLAN_KEY, planId);
@@ -747,6 +770,17 @@ function App() {
     setMessage("");
 
     try {
+      const latestPlan = await getLatestBillingPlan();
+
+      if (isPaidBillingPlan(latestPlan)) {
+        sessionStorage.removeItem(PENDING_PLAN_KEY);
+        showSuccess(
+          `${latestPlan?.planName || "Your premium plan"} is already active.`
+        );
+        setBillingLoadingPlan("");
+        return;
+      }
+
       const scriptLoaded = await loadRazorpayScript();
 
       if (!scriptLoaded || !window.Razorpay) {
@@ -2045,14 +2079,16 @@ function App() {
         </section>
       )}
       <section className="pricingSection" id="pricing">
-        <div className="pricingHeader">
-          <p className="sectionKicker">Pricing</p>
-          <h2>Simple pricing, like software used to be.</h2>
-          <p>
-            Pay once. Use Go without monthly subscription stress. All prices are in
-            Indian Rupees.
-          </p>
-        </div>
+        {(!isSignedIn || !hasPaidPlan()) && (
+          <div className="pricingHeader">
+            <p className="sectionKicker">Pricing</p>
+            <h2>Simple pricing, like software used to be.</h2>
+            <p>
+              Pay once. Use Go without monthly subscription stress. All prices are in
+              Indian Rupees.
+            </p>
+          </div>
+        )}
 
         {isSignedIn && (
           <div className="currentPlanCard">
@@ -2134,16 +2170,6 @@ function App() {
               ))}
             </div>
           </>
-        )}
-
-        {isSignedIn && hasPaidPlan() && (
-          <div className="paidPlanNotice">
-            <strong>You have full Go access.</strong>
-            <span>
-              Your paid plan unlocks unlimited permanent links under fair use, full
-              analytics history, premium temporary links, and future AI insights.
-            </span>
-          </div>
         )}
       </section>
 
