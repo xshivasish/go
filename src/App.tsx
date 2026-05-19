@@ -208,6 +208,9 @@ const billingPlans: BillingPlan[] = [
   },
 ];
 
+const clockHours = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const clockMinutes = ["00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55"];
+
 const footerPages: Record<FooterPageKey, FooterPageContent> = {
   terms: {
     eyebrow: "Legal",
@@ -442,6 +445,10 @@ function App() {
   const [userLinkMode, setUserLinkMode] = useState<"permanent" | "temporary">("permanent");
   const [userExpiresIn, setUserExpiresIn] = useState("24h");
   const [customExpiresAt, setCustomExpiresAt] = useState("");
+  const [customExpiryDate, setCustomExpiryDate] = useState("");
+  const [customExpiryHour, setCustomExpiryHour] = useState("12");
+  const [customExpiryMinute, setCustomExpiryMinute] = useState("00");
+  const [customExpiryPeriod, setCustomExpiryPeriod] = useState<"AM" | "PM">("PM");
 
   const [createdLink, setCreatedLink] = useState<ShortenResponse | null>(null);
   const [links, setLinks] = useState<ShortenResponse[]>([]);
@@ -466,6 +473,7 @@ function App() {
 
   const [currentPlan, setCurrentPlan] = useState<BillingStatus | null>(null);
   const [billingStatusLoading, setBillingStatusLoading] = useState(false);
+  const [billingStatusLoaded, setBillingStatusLoaded] = useState(false);
   const [billingLoadingPlan, setBillingLoadingPlan] = useState("");
 
   const [showAccountSettings, setShowAccountSettings] = useState(false);
@@ -509,6 +517,22 @@ function App() {
     };
   }, [links]);
 
+  const permanentManagedLinks = useMemo(() => {
+    return links.filter((link) => String(link.type || "").toLowerCase() === "permanent").length;
+  }, [links]);
+
+  const temporaryManagedLinks = useMemo(() => {
+    return links.filter((link) => String(link.type || "").toLowerCase() === "temporary").length;
+  }, [links]);
+
+  const freePermanentLinkLimit = 10;
+  const freePermanentLinksLeft = Math.max(
+    freePermanentLinkLimit - permanentManagedLinks,
+    0
+  );
+  const planName = currentPlan?.planName || "Go Free";
+  const planAccessLabel = formatAccess(currentPlan?.accessUntil);
+
   const filteredLinks = useMemo(() => {
     const query = linkSearchQuery.trim().toLowerCase();
 
@@ -537,11 +561,17 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
+    setCustomExpiresAt(buildCustomExpiryValue());
+  }, [customExpiryDate, customExpiryHour, customExpiryMinute, customExpiryPeriod]);
+
+  useEffect(() => {
     if (auth.isAuthenticated) {
+      setBillingStatusLoaded(false);
       loadLinks();
       loadBillingStatus();
     } else {
       setCurrentPlan(null);
+      setBillingStatusLoaded(false);
     }
   }, [auth.isAuthenticated]);
 
@@ -666,6 +696,7 @@ function App() {
   async function loadBillingStatus() {
     if (!token) return;
 
+    setBillingStatusLoaded(false);
     setBillingStatusLoading(true);
 
     try {
@@ -683,6 +714,7 @@ function App() {
       );
     } finally {
       setBillingStatusLoading(false);
+      setBillingStatusLoaded(true);
     }
   }
 
@@ -726,6 +758,21 @@ function App() {
     );
   }
 
+  function shouldShowPricingCards() {
+    if (isSignedIn && (!billingStatusLoaded || billingStatusLoading)) return false;
+    return !isSignedIn || !hasPaidPlan();
+  }
+
+  function getHeaderPlanLabel() {
+    if (!billingStatusLoaded || billingStatusLoading) return "Plan";
+
+    if (!isPaidBillingPlan(currentPlan)) return "Free";
+
+    if (currentPlan?.accessUntil === "lifetime") return "Lifetime";
+
+    return currentPlan?.planName || "Premium";
+  }
+
   async function choosePlan(planId: BillingPlan["id"]) {
     if (!token) {
       sessionStorage.setItem(PENDING_PLAN_KEY, planId);
@@ -747,6 +794,7 @@ function App() {
     })) as BillingMeResponse;
 
     setCurrentPlan(data.plan);
+    setBillingStatusLoaded(true);
 
     return data.plan;
   }
@@ -851,6 +899,30 @@ function App() {
     }
   }
 
+  function buildCustomExpiryValue() {
+    if (!customExpiryDate) return "";
+
+    let hour = Number(customExpiryHour);
+
+    if (customExpiryPeriod === "PM" && hour !== 12) {
+      hour += 12;
+    }
+
+    if (customExpiryPeriod === "AM" && hour === 12) {
+      hour = 0;
+    }
+
+    return `${customExpiryDate}T${String(hour).padStart(2, "0")}:${customExpiryMinute}`;
+  }
+
+  function formatCustomExpiryPreview() {
+    const value = buildCustomExpiryValue();
+
+    if (!value) return "Select a date to preview the expiry time.";
+
+    return `Expires ${formatDate(value)}`;
+  }
+
   async function createTemporaryLink() {
     setLoading(true);
     setMessage("");
@@ -888,7 +960,9 @@ function App() {
       return;
     }
 
-    if (userLinkMode === "temporary" && userExpiresIn === "custom" && !customExpiresAt) {
+    const customExpiryValue = buildCustomExpiryValue();
+
+    if (userLinkMode === "temporary" && userExpiresIn === "custom" && !customExpiryValue) {
       showError("Please select a custom expiry date and time.");
       return;
     }
@@ -914,7 +988,7 @@ function App() {
           expiresIn: userLinkMode === "temporary" ? userExpiresIn : undefined,
           customExpiresAt:
             userLinkMode === "temporary" && userExpiresIn === "custom"
-              ? customExpiresAt
+              ? customExpiryValue
               : undefined,
         }),
       })) as ShortenResponse;
@@ -927,6 +1001,10 @@ function App() {
       setUserLinkMode("permanent");
       setUserExpiresIn("24h");
       setCustomExpiresAt("");
+      setCustomExpiryDate("");
+      setCustomExpiryHour("12");
+      setCustomExpiryMinute("00");
+      setCustomExpiryPeriod("PM");
 
       await loadLinks();
       showSuccess(userLinkMode === "temporary" ? "Temporary account link created." : "Permanent link created.");
@@ -1457,18 +1535,8 @@ function App() {
         <a className="brand cleanBrand mobileBrand" href="/">
           <img src={logo} />
           <span>Go</span>
+          {hasPaidPlan() && <em className="brandPlanText">Lifetime</em>}
         </a>
-
-        <nav className="desktopLinks cleanNavLinks">
-          <a href="#shorten">Shorten</a>
-          <a href="#features">Features</a>
-          <a href="#pricing">Pricing</a>
-          {isSignedIn && (
-            <button className="navTextButton" onClick={() => setShowLinkManager(true)}>
-              Manage
-            </button>
-          )}
-        </nav>
 
         <div className="navActions cleanNavActions mobileNavActions">
           {auth.isLoading ? (
@@ -1480,7 +1548,7 @@ function App() {
               </span>
 
               <button
-                className="iconThemeButton"
+                className={`themeSwitch ${theme === "dark" ? "themeSwitchDark" : "themeSwitchLight"}`}
                 aria-label={
                   theme === "light" ? "Switch to dark mode" : "Switch to light mode"
                 }
@@ -1489,20 +1557,24 @@ function App() {
                 }
                 onClick={toggleTheme}
               >
-                {theme === "light" ? "🌙" : "☀️"}
+                <span className="themeSwitchTrack">
+                  <span className="themeSwitchThumb">
+                    {theme === "light" ? "☀️" : "🌙"}
+                  </span>
+                </span>
               </button>
 
               <button
-                className="settingsIconButton"
+                className="settingsHeaderButton"
                 aria-label="Open account settings"
                 title="Account settings"
                 onClick={() => setShowAccountSettings(true)}
               >
-                ⚙️
+                Settings
               </button>
 
               <button
-                className="outlineButton navButton cleanSignButton fixedAuthButton"
+                className="signOutHeaderButton"
                 onClick={signOut}
               >
                 Sign out
@@ -1511,7 +1583,7 @@ function App() {
           ) : (
             <>
               <button
-                className="iconThemeButton"
+                className={`themeSwitch ${theme === "dark" ? "themeSwitchDark" : "themeSwitchLight"}`}
                 aria-label={
                   theme === "light" ? "Switch to dark mode" : "Switch to light mode"
                 }
@@ -1520,7 +1592,11 @@ function App() {
                 }
                 onClick={toggleTheme}
               >
-                {theme === "light" ? "🌙" : "☀️"}
+                <span className="themeSwitchTrack">
+                  <span className="themeSwitchThumb">
+                    {theme === "light" ? "☀️" : "🌙"}
+                  </span>
+                </span>
               </button>
 
               <button
@@ -1675,140 +1751,396 @@ function App() {
 
       {isSignedIn && (
         <>
-          <section className="accountCreator premiumLinkSection">
-            <div>
-              <p className="sectionKicker">Premium links</p>
-              <h2>Create a managed link</h2>
-              <p>
-                Create permanent links, or temporary campaign links with controlled
-                expiry. Free users get 10 permanent links total.
-              </p>
-            </div>
-
-            <div className="accountForm accountFormExpanded">
-              <div className="linkModeGrid">
-                <button
-                  type="button"
-                  className={
-                    userLinkMode === "permanent"
-                      ? "primaryButton modeButton"
-                      : "outlineButton modeButton"
-                  }
-                  onClick={() => setUserLinkMode("permanent")}
-                >
-                  Permanent
-                </button>
+          <section className="premiumLinkSection premiumWorkspaceSection creatorStudioSection">
+            <div className="creatorStudioShell">
+              <div className="creatorStudioHeader">
+                <div>
+                  <p className="sectionKicker">Link creator</p>
+                  <h2>Create, organize, and track your links</h2>
+                  <p>
+                    Build permanent links for pages that stay live, or temporary links
+                    for campaigns and limited-time sharing. Everything you create here
+                    stays editable from Links.
+                  </p>
+                </div>
 
                 <button
-                  type="button"
-                  className={
-                    userLinkMode === "temporary"
-                      ? "primaryButton modeButton"
-                      : "outlineButton modeButton"
-                  }
-                  onClick={() => setUserLinkMode("temporary")}
+                  className="outlineButton premiumHeaderAction"
+                  onClick={() => setShowLinkManager(true)}
                 >
-                  Temporary
+                  Open Links
                 </button>
               </div>
 
-              <input
-                value={userUrl}
-                onChange={(event) => setUserUrl(event.target.value)}
-                placeholder="Destination URL"
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && userUrl && !loading) {
-                    createPermanentLink();
-                  }
-                }}
-              />
+              <div className="creatorStudioMetrics">
+                <article className="creatorMetricCard primaryMetricCard">
+                  <span>Your plan</span>
+                  <strong>{planName}</strong>
+                  <small>{hasPaidPlan() ? `${currentPlan?.displayPrice || "Premium"} · ${planAccessLabel}` : "Free workspace"}</small>
+                </article>
 
-              <input
-                value={customCode}
-                onChange={(event) =>
-                  setCustomCode(event.target.value.trim().toLowerCase())
-                }
-                placeholder="Custom alias, optional"
-              />
+                <article className="creatorMetricCard">
+                  <span>{hasPaidPlan() ? "Premium access" : "Free links left"}</span>
+                  <strong>{hasPaidPlan() ? "Unlimited" : freePermanentLinksLeft}</strong>
+                  <small>
+                    {hasPaidPlan()
+                      ? "Permanent links under fair use"
+                      : `${permanentManagedLinks}/${freePermanentLinkLimit} permanent links used`}
+                  </small>
+                </article>
 
-              {userLinkMode === "temporary" && (
-                <div className="expiryPanel">
-                  <label>Temporary link expiry</label>
+                <article className="creatorMetricCard">
+                  <span>Temporary links</span>
+                  <strong>{temporaryManagedLinks}</strong>
+                  <small>{hasPaidPlan() ? "Custom expiry available" : "Free expiry up to 7 days"}</small>
+                </article>
 
-                  <select
-                    className="expirySelect"
-                    value={userExpiresIn}
-                    onChange={(event) => setUserExpiresIn(event.target.value)}
-                  >
-                    <option value="1h">1 hour</option>
-                    <option value="6h">6 hours</option>
-                    <option value="24h">24 hours</option>
-                    <option value="7d">7 days</option>
-                    <option disabled={!hasPaidPlan()} value="30d">
-                      30 days · Premium
-                    </option>
-                    <option disabled={!hasPaidPlan()} value="90d">
-                      90 days · Premium
-                    </option>
-                    <option disabled={!hasPaidPlan()} value="1y">
-                      1 year · Premium
-                    </option>
-                    <option disabled={!hasPaidPlan()} value="custom">
-                      Custom date/time · Premium
-                    </option>
-                  </select>
+                <article className="creatorMetricCard">
+                  <span>Total clicks</span>
+                  <strong>{stats.totalClicks}</strong>
+                  <small>{stats.activeLinks} active links</small>
+                </article>
+              </div>
 
-                  {userExpiresIn === "custom" && hasPaidPlan() && (
-                    <input
-                      type="datetime-local"
-                      value={customExpiresAt}
-                      onChange={(event) => setCustomExpiresAt(event.target.value)}
-                    />
-                  )}
+              <div className="creatorStudioGrid">
+                <aside className="creatorControlPanel">
+                  <div className="creatorPanelBlock">
+                    <span className="miniLabel">Choose link type</span>
+
+                    <div className="creatorModeCards">
+                      <button
+                        type="button"
+                        className={
+                          userLinkMode === "permanent"
+                            ? "creatorModeCard active"
+                            : "creatorModeCard"
+                        }
+                        onClick={() => setUserLinkMode("permanent")}
+                      >
+                        <span>Permanent</span>
+                        <strong>Always-on link</strong>
+                        <small>Use for websites, profiles, products, resumes, docs, and pages that should not expire.</small>
+                      </button>
+
+                      <button
+                        type="button"
+                        className={
+                          userLinkMode === "temporary"
+                            ? "creatorModeCard active"
+                            : "creatorModeCard"
+                        }
+                        onClick={() => setUserLinkMode("temporary")}
+                      >
+                        <span>Temporary</span>
+                        <strong>Time-limited link</strong>
+                        <small>Use for campaigns, offers, event files, private sharing, and links that should close automatically.</small>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="creatorPanelBlock usefulInfoBlock">
+                    <span className="miniLabel">What you get</span>
+
+                    <div className="creatorInfoList">
+                      <div>
+                        <strong>Custom aliases</strong>
+                        <span>Create readable short links that people can remember.</span>
+                      </div>
+
+                      <div>
+                        <strong>QR codes</strong>
+                        <span>Generate downloadable QR codes from the Links manager.</span>
+                      </div>
+
+                      <div>
+                        <strong>Analytics</strong>
+                        <span>{hasPaidPlan() ? "View complete click history and long-term performance." : "Free users can view the latest 10 clicks per link."}</span>
+                      </div>
+
+                      <div>
+                        <strong>Expiry controls</strong>
+                        <span>{hasPaidPlan() ? "Use 30 days, 90 days, 1 year, or custom expiry." : "Use 1 hour, 6 hours, 24 hours, or 7 days for free."}</span>
+                      </div>
+                    </div>
+                  </div>
 
                   {!hasPaidPlan() && (
-                    <div className="lockedTemporaryCard">
-                      <span className="lockIcon">🔒</span>
+                    <div className="freeUsageCard">
                       <div>
-                        <strong>Premium temporary links</strong>
+                        <span className="miniLabel">Free plan usage</span>
+                        <strong>{freePermanentLinksLeft} permanent links left</strong>
                         <p>
-                          Longer expiry options and custom expiry are locked on the
-                          Free plan. Upgrade to unlock premium temporary links.
+                          You have used {permanentManagedLinks} of {freePermanentLinkLimit} free permanent links.
+                          Temporary links up to 7 days are still available.
                         </p>
                       </div>
+
                       <a className="outlineButton anchorButton" href="#pricing">
-                        Upgrade
+                        View upgrades
                       </a>
                     </div>
                   )}
+                </aside>
+
+                <div className="creatorFormPanel">
+                  <div className="creatorFormTopline">
+                    <div>
+                      <span className="miniLabel">{userLinkMode === "temporary" ? "Temporary setup" : "Permanent setup"}</span>
+                      <h3>{userLinkMode === "temporary" ? "Create a temporary managed link" : "Create a permanent managed link"}</h3>
+                      <p>
+                        {userLinkMode === "temporary"
+                          ? "Set a destination, optional alias, and expiry. The link will automatically stop working after the selected time."
+                          : "Set a destination, optional alias, title, and notes. You can edit or pause it later from Links."}
+                      </p>
+                    </div>
+
+                    <span className="creatorStatusPill">
+                      {userLinkMode === "temporary" ? "Auto-expiry" : "No expiry"}
+                    </span>
+                  </div>
+
+                  <div className="creatorFieldGroup creatorFullField">
+                    <label>Destination URL</label>
+                    <input
+                      value={userUrl}
+                      onChange={(event) => setUserUrl(event.target.value)}
+                      placeholder="https://example.com/your-long-link"
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && userUrl && !loading) {
+                          createPermanentLink();
+                        }
+                      }}
+                    />
+                    <small>The page people will visit when they open your Go short link.</small>
+                  </div>
+
+                  <div className="creatorTwoColumnFields">
+                    <div className="creatorFieldGroup">
+                      <label>Custom alias</label>
+                      <input
+                        value={customCode}
+                        onChange={(event) =>
+                          setCustomCode(event.target.value.trim().toLowerCase())
+                        }
+                        placeholder="my-campaign"
+                      />
+                      <small>Optional. Leave blank to auto-generate.</small>
+                    </div>
+
+                    <div className="creatorFieldGroup">
+                      <label>Title</label>
+                      <input
+                        value={linkTitle}
+                        onChange={(event) => setLinkTitle(event.target.value)}
+                        placeholder="Launch page, Resume, Offer link..."
+                        maxLength={120}
+                      />
+                      <small>Only visible inside your dashboard.</small>
+                    </div>
+                  </div>
+
+                  {userLinkMode === "temporary" && (
+                    <div className="creatorExpiryPanel">
+                      <div className="creatorFieldGroup">
+                        <label>Expiry</label>
+
+                        <select
+                          className="expirySelect"
+                          value={userExpiresIn}
+                          onChange={(event) => setUserExpiresIn(event.target.value)}
+                        >
+                          <option value="1h">1 hour</option>
+                          <option value="6h">6 hours</option>
+                          <option value="24h">24 hours</option>
+                          <option value="7d">7 days</option>
+                          <option disabled={!hasPaidPlan()} value="30d">
+                            30 days · Premium
+                          </option>
+                          <option disabled={!hasPaidPlan()} value="90d">
+                            90 days · Premium
+                          </option>
+                          <option disabled={!hasPaidPlan()} value="1y">
+                            1 year · Premium
+                          </option>
+                          <option disabled={!hasPaidPlan()} value="custom">
+                            Custom date/time · Premium
+                          </option>
+                        </select>
+                        <small>{hasPaidPlan() ? "Premium expiry controls are available." : "Free temporary links can expire up to 7 days later."}</small>
+                      </div>
+
+                      {userExpiresIn === "custom" && hasPaidPlan() && (
+                        <div className="creatorFieldGroup creatorFullField customExpiryPicker">
+                          <div className="customExpiryTop">
+                            <div>
+                              <label>Custom expiry</label>
+                              <p>Pick a date, then tap the clock to choose the time.</p>
+                            </div>
+
+                            <span>{formatCustomExpiryPreview()}</span>
+                          </div>
+
+                          <div className="customExpiryGrid">
+                            <div className="customDatePanel">
+                              <label>Date</label>
+                              <input
+                                type="date"
+                                value={customExpiryDate}
+                                onChange={(event) => setCustomExpiryDate(event.target.value)}
+                              />
+
+                              <div className="periodToggle" aria-label="Select AM or PM">
+                                <button
+                                  type="button"
+                                  className={customExpiryPeriod === "AM" ? "active" : ""}
+                                  onClick={() => setCustomExpiryPeriod("AM")}
+                                >
+                                  AM
+                                </button>
+
+                                <button
+                                  type="button"
+                                  className={customExpiryPeriod === "PM" ? "active" : ""}
+                                  onClick={() => setCustomExpiryPeriod("PM")}
+                                >
+                                  PM
+                                </button>
+                              </div>
+
+                              <div className="manualTimeRow">
+                                <select
+                                  value={customExpiryHour}
+                                  onChange={(event) => setCustomExpiryHour(event.target.value)}
+                                  aria-label="Custom expiry hour"
+                                >
+                                  {clockHours.map((hour) => (
+                                    <option value={hour} key={hour}>
+                                      {hour.padStart(2, "0")}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                <span>:</span>
+
+                                <select
+                                  value={customExpiryMinute}
+                                  onChange={(event) => setCustomExpiryMinute(event.target.value)}
+                                  aria-label="Custom expiry minute"
+                                >
+                                  {clockMinutes.map((minute) => (
+                                    <option value={minute} key={minute}>
+                                      {minute}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="analogClockPanel" aria-label="Analogue time picker">
+                              <div className="analogClockFace">
+                                <span className="clockCenter" />
+                                <span
+                                  className="clockHandHour"
+                                  style={{
+                                    transform: `translateX(-50%) rotate(${(Number(customExpiryHour) % 12) * 30 + Number(customExpiryMinute) * 0.5}deg)`,
+                                  }}
+                                />
+                                <span
+                                  className="clockHandMinute"
+                                  style={{
+                                    transform: `translateX(-50%) rotate(${Number(customExpiryMinute) * 6}deg)`,
+                                  }}
+                                />
+
+                                {clockHours.map((hour, index) => {
+                                  const angle = (index + 1) * 30;
+
+                                  return (
+                                    <button
+                                      type="button"
+                                      className={customExpiryHour === hour ? "active" : ""}
+                                      key={hour}
+                                      style={{
+                                        transform: `rotate(${angle}deg) translateY(-82px) rotate(-${angle}deg)`,
+                                      }}
+                                      onClick={() => setCustomExpiryHour(hour)}
+                                    >
+                                      {hour}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <div className="minutePicker">
+                                {clockMinutes.map((minute) => (
+                                  <button
+                                    type="button"
+                                    className={customExpiryMinute === minute ? "active" : ""}
+                                    key={minute}
+                                    onClick={() => setCustomExpiryMinute(minute)}
+                                  >
+                                    {minute}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {!hasPaidPlan() && (
+                        <div className="lockedTemporaryCard premiumLockedCard creatorLockedCard">
+                          <span className="lockIcon">🔒</span>
+                          <div>
+                            <strong>Premium expiry options</strong>
+                            <p>
+                              Longer expiry and custom date/time are available on paid plans.
+                              Your free plan still supports 1 hour, 6 hours, 24 hours, and 7 days.
+                            </p>
+                          </div>
+                          <a className="outlineButton anchorButton" href="#pricing">
+                            Upgrade
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="creatorFieldGroup creatorFullField">
+                    <label>Notes</label>
+                    <textarea
+                      value={linkNotes}
+                      onChange={(event) => setLinkNotes(event.target.value)}
+                      placeholder="Optional internal notes for this link"
+                      maxLength={500}
+                    />
+                    <small>Use notes for campaign names, client names, source details, or reminders.</small>
+                  </div>
+
+                  <div className="creatorSubmitPanel">
+                    <div>
+                      <strong>Ready to create?</strong>
+                      <p>
+                        {userLinkMode === "temporary"
+                          ? "After creation, you can copy the link, generate a QR code, view analytics, or delete it from Links."
+                          : "After creation, you can copy the link, edit details, generate a QR code, pause it, or view analytics from Links."}
+                      </p>
+                    </div>
+
+                    <button
+                      className="primaryButton premiumCreateButton"
+                      disabled={!userUrl || loading}
+                      onClick={createPermanentLink}
+                    >
+                      {loading
+                        ? "Creating..."
+                        : userLinkMode === "temporary"
+                          ? "Create temporary link"
+                          : "Create permanent link"}
+                    </button>
+                  </div>
                 </div>
-              )}
-
-              <input
-                value={linkTitle}
-                onChange={(event) => setLinkTitle(event.target.value)}
-                placeholder="Title, optional"
-                maxLength={120}
-              />
-
-              <textarea
-                value={linkNotes}
-                onChange={(event) => setLinkNotes(event.target.value)}
-                placeholder="Notes, optional"
-                maxLength={500}
-              />
-
-              <button
-                className="primaryButton"
-                disabled={!userUrl || loading}
-                onClick={createPermanentLink}
-              >
-                {loading
-                  ? "Creating..."
-                  : userLinkMode === "temporary"
-                    ? "Create temporary link"
-                    : "Create permanent link"}
-              </button>
+              </div>
             </div>
           </section>
 
@@ -1816,19 +2148,6 @@ function App() {
         </>
       )}
 
-      {isSignedIn && (
-        <section className="manageLinksSection">
-          <div>
-            <p className="sectionKicker">Manage links</p>
-            <h2>Open your link manager</h2>
-            <p>View all available links, analytics, QR codes, editing, status controls, and deletion from one focused window.</p>
-          </div>
-
-          <button className="primaryButton largeButton" onClick={() => setShowLinkManager(true)}>
-            Manage links
-          </button>
-        </section>
-      )}
 
       {isSignedIn && showLinkManager && (
         <section className="linkManagerOverlay">
@@ -2079,7 +2398,7 @@ function App() {
         </section>
       )}
       <section className="pricingSection" id="pricing">
-        {(!isSignedIn || !hasPaidPlan()) && (
+        {shouldShowPricingCards() && (
           <div className="pricingHeader">
             <p className="sectionKicker">Pricing</p>
             <h2>Simple pricing, like software used to be.</h2>
@@ -2090,15 +2409,11 @@ function App() {
           </div>
         )}
 
-        {isSignedIn && (
+        {isSignedIn && billingStatusLoaded && (
           <div className="currentPlanCard">
             <div>
               <p className="sectionKicker">Current plan</p>
-              <h3>
-                {billingStatusLoading
-                  ? "Checking plan..."
-                  : currentPlan?.planName || "Go Free"}
-              </h3>
+              <h3>{currentPlan?.planName || "Go Free"}</h3>
               <span>
                 {currentPlan
                   ? `${currentPlan.displayPrice} · ${currentPlan.status}`
@@ -2113,7 +2428,7 @@ function App() {
           </div>
         )}
 
-        {(!isSignedIn || !hasPaidPlan()) && (
+        {shouldShowPricingCards() && (
           <>
             <div className="pricingGrid">
               {billingPlans.map((plan) => (
