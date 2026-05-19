@@ -444,7 +444,7 @@ function App() {
   const [linkNotes, setLinkNotes] = useState("");
   const [userLinkMode, setUserLinkMode] = useState<"permanent" | "temporary">("permanent");
   const [userExpiresIn, setUserExpiresIn] = useState("24h");
-  const [customExpiresAt, setCustomExpiresAt] = useState("");
+  const [, setCustomExpiresAt] = useState("");
   const [customExpiryDate, setCustomExpiryDate] = useState("");
   const [customExpiryHour, setCustomExpiryHour] = useState("12");
   const [customExpiryMinute, setCustomExpiryMinute] = useState("00");
@@ -761,16 +761,6 @@ function App() {
   function shouldShowPricingCards() {
     if (isSignedIn && (!billingStatusLoaded || billingStatusLoading)) return false;
     return !isSignedIn || !hasPaidPlan();
-  }
-
-  function getHeaderPlanLabel() {
-    if (!billingStatusLoaded || billingStatusLoading) return "Plan";
-
-    if (!isPaidBillingPlan(currentPlan)) return "Free";
-
-    if (currentPlan?.accessUntil === "lifetime") return "Lifetime";
-
-    return currentPlan?.planName || "Premium";
   }
 
   async function choosePlan(planId: BillingPlan["id"]) {
