@@ -1455,7 +1455,7 @@ function App() {
     <main className={`bitlyShell ${theme}`}>
       <header className="topNav cleanTopNav mobileCleanTopNav">
         <a className="brand cleanBrand mobileBrand" href="/">
-          <img src={logo} alt="Go by 17Bytes logo" />
+          <img src={logo} />
           <span>Go</span>
         </a>
 
