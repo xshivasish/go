@@ -8,6 +8,23 @@ import "./App.css";
 
 type Theme = "light" | "dark";
 
+type FooterPageKey =
+  | "terms"
+  | "privacy"
+  | "refunds"
+  | "acceptableUse"
+  | "abuse"
+  | "contact"
+  | "about"
+  | "go";
+
+type FooterPageContent = {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  sections: { heading: string; body: string }[];
+};
+
 type ShortenResponse = {
   code: string;
   shortUrl: string;
@@ -64,6 +81,7 @@ type BillingPlan = {
   id: "one_year" | "two_years" | "five_years" | "lifetime";
   name: string;
   price: string;
+  originalPrice?: string;
   duration: string;
   badge?: string;
   save?: string;
@@ -144,6 +162,7 @@ declare global {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const PENDING_PLAN_KEY = "go-pending-plan";
 
 const emptySummary: AnalyticsSummary = {
   totalClicks: 0,
@@ -157,35 +176,242 @@ const emptySummary: AnalyticsSummary = {
 
 const billingPlans: BillingPlan[] = [
   {
-    id: "one_year",
-    name: "Starter",
-    price: "₹999",
-    duration: "1 year access",
-  },
-  {
-    id: "two_years",
-    name: "Plus",
-    price: "₹1,898",
-    duration: "2 years access",
-    save: "Save ₹100",
-    badge: "Popular",
+    id: "lifetime",
+    name: "Lifetime",
+    originalPrice: "₹9,990",
+    price: "₹9,490",
+    duration: "Lifetime access",
+    save: "Save ₹500",
+    badge: "Best value",
   },
   {
     id: "five_years",
     name: "Pro",
+    originalPrice: "₹4,995",
     price: "₹4,695",
     duration: "5 years access",
     save: "Save ₹300",
   },
   {
-    id: "lifetime",
-    name: "Lifetime",
-    price: "₹9,490",
-    duration: "Pay once, use forever",
-    save: "Save ₹500",
-    badge: "Best value",
+    id: "two_years",
+    name: "Plus",
+    originalPrice: "₹1,998",
+    price: "₹1,898",
+    duration: "2 years access",
+    save: "Save ₹100",
+  },
+  {
+    id: "one_year",
+    name: "Starter",
+    price: "₹999",
+    duration: "1 year access",
   },
 ];
+
+const footerPages: Record<FooterPageKey, FooterPageContent> = {
+  terms: {
+    eyebrow: "Legal",
+    title: "Terms of Service",
+    intro:
+      "These terms explain how Go by 17Bytes may be used, what users are responsible for, and how paid access works.",
+    sections: [
+      {
+        heading: "Service use",
+        body:
+          "Go by 17Bytes helps users create, manage, and measure short links. You are responsible for the links you create, the destinations you share, and any activity connected to your account.",
+      },
+      {
+        heading: "Account and access",
+        body:
+          "Keep your login secure. We may restrict, suspend, or remove links or accounts that create risk, abuse the platform, or violate these terms.",
+      },
+      {
+        heading: "Paid plans",
+        body:
+          "Paid plans provide premium access for the selected duration, including unlimited premium links under fair use, complete analytics history, advanced expiry controls, priority support, and future premium upgrades.",
+      },
+      {
+        heading: "Fair use",
+        body:
+          "Unlimited usage is subject to fair-use protections. Automated spam, abusive bulk creation, resale, scraping, or activity that affects platform stability is not permitted.",
+      },
+      {
+        heading: "Limitation",
+        body:
+          "The service is provided with reasonable care, but availability may vary due to maintenance, third-party providers, infrastructure issues, or misuse prevention.",
+      },
+    ],
+  },
+  privacy: {
+    eyebrow: "Privacy",
+    title: "Privacy Policy",
+    intro:
+      "This policy explains the information Go by 17Bytes uses to operate accounts, short links, analytics, billing, and support.",
+    sections: [
+      {
+        heading: "Information we process",
+        body:
+          "We may process your email, account identity, created links, link metadata, QR usage, click timestamps, referrers, device type, browser details, IP-derived visitor signals, support messages, and payment metadata.",
+      },
+      {
+        heading: "How it is used",
+        body:
+          "Data is used to provide the service, secure accounts, record analytics, prevent abuse, process payments, improve reliability, and respond to support or legal requests.",
+      },
+      {
+        heading: "Payments",
+        body:
+          "Payments are processed by Razorpay. Go by 17Bytes does not store card, UPI, or banking credentials on its own servers.",
+      },
+      {
+        heading: "Your choices",
+        body:
+          "You may request correction, deletion, account removal, or privacy assistance by contacting the support or privacy contact listed on this site.",
+      },
+    ],
+  },
+  refunds: {
+    eyebrow: "Payments",
+    title: "Refund & Cancellation Policy",
+    intro:
+      "Go by 17Bytes sells one-time access plans. There are no recurring monthly subscriptions to cancel.",
+    sections: [
+      {
+        heading: "One-time plans",
+        body:
+          "Plans are purchased for the selected access period. Lifetime access means access for the lifetime of the Go by 17Bytes product, subject to the terms and fair-use policy.",
+      },
+      {
+        heading: "Refund requests",
+        body:
+          "Refunds may be reviewed when payment was accidental, duplicate, or the service could not be activated. Heavy usage, abuse, or completed value delivery may make a plan ineligible for refund.",
+      },
+      {
+        heading: "How to request help",
+        body:
+          "Contact support with your account email, payment reference, plan selected, and reason for the request. We will review the request and respond as soon as reasonably possible.",
+      },
+    ],
+  },
+  acceptableUse: {
+    eyebrow: "Trust",
+    title: "Acceptable Use Policy",
+    intro:
+      "Short links must be safe, lawful, and respectful of users, platforms, and third-party rights.",
+    sections: [
+      {
+        heading: "Not allowed",
+        body:
+          "Do not use Go for phishing, malware, credential theft, spam, scams, impersonation, illegal content, payment fraud, deceptive redirects, harassment, exploitation, or content that violates applicable law.",
+      },
+      {
+        heading: "Enforcement",
+        body:
+          "We may disable links, limit accounts, remove content, or terminate access when links create security, legal, platform, or user-safety risk.",
+      },
+      {
+        heading: "Responsible sharing",
+        body:
+          "Make sure your destination pages are accurate, safe, and permitted by the services where you share them.",
+      },
+    ],
+  },
+  abuse: {
+    eyebrow: "Safety",
+    title: "Report Abuse",
+    intro:
+      "If a Go short link is being used for phishing, malware, spam, scams, impersonation, or harmful activity, report it for review.",
+    sections: [
+      {
+        heading: "What to include",
+        body:
+          "Send the short link, the destination if known, the reason for the report, screenshots if available, and any relevant context that helps us investigate quickly.",
+      },
+      {
+        heading: "Abuse contact",
+        body:
+          "Email abuse@17bytes.com for abuse reports. Serious security or phishing reports should include as much evidence as possible.",
+      },
+      {
+        heading: "Review process",
+        body:
+          "Reported links may be reviewed and disabled when they violate our policies or create risk for users or third parties.",
+      },
+    ],
+  },
+  contact: {
+    eyebrow: "Support",
+    title: "Contact & Support",
+    intro:
+      "For product help, billing questions, account issues, privacy requests, or business enquiries, contact the Go by 17Bytes team.",
+    sections: [
+      {
+        heading: "Support",
+        body:
+          "Email support@17bytes.com for product support, billing assistance, account help, and general questions.",
+      },
+      {
+        heading: "Privacy and data requests",
+        body:
+          "For privacy, correction, deletion, or account-data requests, contact privacy@17bytes.com with your account email and request details.",
+      },
+      {
+        heading: "Business enquiries",
+        body:
+          "For partnerships, company enquiries, or product-related business communication, contact the 17Bytes team through the main company website.",
+      },
+    ],
+  },
+
+  about: {
+    eyebrow: "Company",
+    title: "About Go by 17Bytes",
+    intro:
+      "Go by 17Bytes is a professional link management product built for simple, secure, and measurable sharing.",
+    sections: [
+      {
+        heading: "About us",
+        body:
+          "Go by 17Bytes helps individuals, creators, teams, and businesses create short links, manage campaigns, generate QR codes, and understand link performance from one clean dashboard.",
+      },
+      {
+        heading: "Product",
+        body:
+          "Go is designed to keep link sharing fast, clear, and reliable, with temporary links, custom aliases, analytics, QR codes, and premium access options.",
+      },
+      {
+        heading: "Company",
+        body:
+          "Go by 17Bytes is operated by 17Bytes. Visit 17bytes.com to learn more about the main company.",
+      },
+    ],
+  },
+
+  go: {
+    eyebrow: "Product",
+    title: "Go by 17Bytes",
+    intro:
+      "Go is the link management product by 17Bytes, built for fast sharing, clean dashboards, QR codes, and measurable campaign links.",
+    sections: [
+      {
+        heading: "What Go does",
+        body:
+          "Go helps you shorten long URLs, create custom aliases, generate QR codes, manage link status, and track link performance from one focused workspace.",
+      },
+      {
+        heading: "Free access",
+        body:
+          "Free users can create temporary links, manage up to 10 permanent links, generate QR codes, and view basic analytics for recent clicks.",
+      },
+      {
+        heading: "Premium access",
+        body:
+          "Premium plans unlock unlimited premium links under fair use, complete analytics history, advanced expiry controls, priority support, and future premium upgrades.",
+      },
+    ],
+  },
+};
+
 
 async function readApiResponse(response: Response) {
   const text = await response.text();
@@ -244,6 +470,7 @@ function App() {
 
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showLinkManager, setShowLinkManager] = useState(false);
+  const [footerPage, setFooterPage] = useState<FooterPageKey | null>(null);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -318,6 +545,22 @@ function App() {
     }
   }, [auth.isAuthenticated]);
 
+  useEffect(() => {
+    if (!auth.isAuthenticated || !token) return;
+
+    const pendingPlan = sessionStorage.getItem(PENDING_PLAN_KEY) as
+      | BillingPlan["id"]
+      | null;
+
+    if (!pendingPlan) return;
+
+    sessionStorage.removeItem(PENDING_PLAN_KEY);
+
+    window.setTimeout(() => {
+      buyPlan(pendingPlan);
+    }, 600);
+  }, [auth.isAuthenticated, token]);
+
   function getIdentityProvider() {
     const profile = auth.user?.profile as Record<string, unknown> | undefined;
     const identitiesValue = profile?.identities;
@@ -384,12 +627,20 @@ function App() {
     setTheme(theme === "light" ? "dark" : "light");
   }
 
-  function startSignIn() {
-    auth.signinRedirect({
-      extraQueryParams: {
-        prompt: "login",
-      },
-    });
+  async function startSignIn(pendingPlan?: BillingPlan["id"]) {
+    if (pendingPlan) {
+      sessionStorage.setItem(PENDING_PLAN_KEY, pendingPlan);
+    }
+
+    try {
+      await auth.signinRedirect({
+        extraQueryParams: {
+          prompt: "login",
+        },
+      });
+    } catch (error) {
+      showError(error instanceof Error ? error.message : "Failed to open sign in");
+    }
   }
 
   function loadRazorpayScript() {
@@ -475,10 +726,20 @@ function App() {
     );
   }
 
+  async function choosePlan(planId: BillingPlan["id"]) {
+    if (!token) {
+      sessionStorage.setItem(PENDING_PLAN_KEY, planId);
+      await startSignIn(planId);
+      return;
+    }
+
+    await buyPlan(planId);
+  }
+
   async function buyPlan(planId: BillingPlan["id"]) {
     if (!token) {
-      showError("Please sign in before buying a plan.");
-      startSignIn();
+      sessionStorage.setItem(PENDING_PLAN_KEY, planId);
+      await startSignIn(planId);
       return;
     }
 
@@ -589,7 +850,7 @@ function App() {
     const selectedPremiumExpiry = ["30d", "90d", "1y", "custom"].includes(userExpiresIn);
 
     if (userLinkMode === "temporary" && selectedPremiumExpiry && !hasPaidPlan()) {
-      showError("Longer expiry options are available on paid plans. Free users can create temporary links up to 7 days.");
+      showError("Premium temporary expiry is locked on the Free plan. Upgrade to use longer or custom expiry.");
       return;
     }
 
@@ -1105,11 +1366,62 @@ function App() {
     showSuccess("Copied to clipboard.");
   }
 
+  function openFooterPage(page: FooterPageKey) {
+    setFooterPage(page);
+  }
+
+  function closeFooterPage() {
+    setFooterPage(null);
+  }
+
+  function renderFooterPage() {
+    if (!footerPage) return null;
+
+    const page = footerPages[footerPage];
+
+    return (
+      <section
+        className="footerPageOverlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="footer-page-title"
+        onClick={closeFooterPage}
+      >
+        <div
+          className="footerPageSection footerPagePopup"
+          id="footer-page"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="footerPageHeader">
+            <div>
+              <p className="sectionKicker">{page.eyebrow}</p>
+              <h2 id="footer-page-title">{page.title}</h2>
+              <p>{page.intro}</p>
+            </div>
+
+            <button className="outlineButton" onClick={closeFooterPage}>
+              Close
+            </button>
+          </div>
+
+          <div className="footerPageGrid">
+            {page.sections.map((section) => (
+              <article className="footerPageCard" key={section.heading}>
+                <h3>{section.heading}</h3>
+                <p>{section.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <main className={`bitlyShell ${theme}`}>
       <header className="topNav cleanTopNav mobileCleanTopNav">
         <a className="brand cleanBrand mobileBrand" href="/">
-          <img src={logo} alt="Go by 17bytes logo" />
+          <img src={logo} alt="Go by 17Bytes logo" />
           <span>Go</span>
         </a>
 
@@ -1179,7 +1491,7 @@ function App() {
 
               <button
                 className="primaryButton navButton cleanSignButton fixedAuthButton"
-                onClick={startSignIn}
+                onClick={() => startSignIn()}
               >
                 Sign in
               </button>
@@ -1191,15 +1503,15 @@ function App() {
       {!isSignedIn && (
         <section className="hero">
         <p className="heroLabel">।। जय श्री राम ।।</p>
-        <h1>Short links. Clear insights.</h1>
+        <h1>Short links, big results</h1>
         <p className="heroCopy">
-          Create temporary links, manage custom aliases, generate QR codes, and
-          track performance from one clean workspace.
+          A simple link shortener for temporary links, custom aliases, analytics,
+          QR codes, and full link management.
         </p>
 
         <div className="heroCtas">
           {!isSignedIn && (
-            <button className="primaryButton largeButton" onClick={startSignIn}>
+            <button className="primaryButton largeButton" onClick={() => startSignIn()}>
               Get started
             </button>
           )}
@@ -1215,8 +1527,8 @@ function App() {
       <section className="shortenBox" id="shorten">
         <div className="shortenTabs">
           <div>
-            <strong>Create a temporary short link</strong>
-            <span>Choose an expiry time and create a short link in seconds.</span>
+            <strong>Shorten a long link</strong>
+            <span>No account required for temporary links</span>
           </div>
 
           <span className="freeBadge">Free</span>
@@ -1256,8 +1568,8 @@ function App() {
         </div>
 
         <p className="helperText">
-          Need managed links, analytics, QR codes, or custom aliases? Sign in to
-          use your full workspace.
+          Want custom aliases, QR codes, analytics, and permanent links? Sign in and
+          use your dashboard.
         </p>
       </section>
 
@@ -1331,11 +1643,11 @@ function App() {
         <>
           <section className="accountCreator premiumLinkSection">
             <div>
-              <p className="sectionKicker">Managed links</p>
+              <p className="sectionKicker">Premium links</p>
               <h2>Create a managed link</h2>
               <p>
-                Create permanent links or campaign links with controlled expiry.
-                Free accounts include 10 permanent managed links.
+                Create permanent links, or temporary campaign links with controlled
+                expiry. Free users get 10 permanent links total.
               </p>
             </div>
 
@@ -1424,10 +1736,10 @@ function App() {
                     <div className="lockedTemporaryCard">
                       <span className="lockIcon">🔒</span>
                       <div>
-                        <strong>Extended temporary links</strong>
+                        <strong>Premium temporary links</strong>
                         <p>
-                          Free accounts can create temporary links up to 7 days.
-                          Upgrade to unlock 30-day, 90-day, 1-year, and custom expiry options.
+                          Longer expiry options and custom expiry are locked on the
+                          Free plan. Upgrade to unlock premium temporary links.
                         </p>
                       </div>
                       <a className="outlineButton anchorButton" href="#pricing">
@@ -1474,8 +1786,8 @@ function App() {
         <section className="manageLinksSection">
           <div>
             <p className="sectionKicker">Manage links</p>
-            <h2>Manage your links</h2>
-            <p>Open your link manager to search links, review performance, generate QR codes, edit destinations, update status, or delete links.</p>
+            <h2>Open your link manager</h2>
+            <p>View all available links, analytics, QR codes, editing, status controls, and deletion from one focused window.</p>
           </div>
 
           <button className="primaryButton largeButton" onClick={() => setShowLinkManager(true)}>
@@ -1491,7 +1803,7 @@ function App() {
               <div>
                 <p className="sectionKicker">Link manager</p>
                 <h2>Manage your links</h2>
-                <p className="helperText">Search, copy, analyze, generate QR codes, edit, pause, reactivate, or delete your managed links.</p>
+                <p className="helperText">Copy, analyze, generate QR codes, edit, pause, reactivate, or delete your managed links.</p>
               </div>
 
               <button
@@ -1538,7 +1850,7 @@ function App() {
                 <p className="sectionKicker">Dashboard</p>
                 <h2>Your links</h2>
                 <p className="helperText">
-                  Search by title, short link, alias, notes, status, type, or destination URL.
+                  Search by title, short link, custom alias, notes, or destination URL.
                 </p>
               </div>
 
@@ -1547,7 +1859,7 @@ function App() {
                   className="dashboardSearchInput"
                   value={linkSearchQuery}
                   onChange={(event) => setLinkSearchQuery(event.target.value)}
-                  placeholder="Search by title, alias, notes, short link, or URL"
+                  placeholder="Search links, title, notes, alias, or URL"
                   aria-label="Search links"
                 />
 
@@ -1565,11 +1877,11 @@ function App() {
               <div className="emptyState">Loading your links...</div>
             ) : links.length === 0 ? (
               <div className="emptyState">
-                No managed links yet. Create your first managed link above.
+                No permanent links yet. Create your first one above.
               </div>
             ) : filteredLinks.length === 0 ? (
               <div className="emptyState">
-                No links match “{linkSearchQuery}”. Try a title, alias, note, short link, status, type, or destination URL.
+                No links found for “{linkSearchQuery}”. Try searching by title, alias, notes, short link, or destination URL.
               </div>
             ) : (
               <div className="linkTable">
@@ -1735,17 +2047,17 @@ function App() {
       <section className="pricingSection" id="pricing">
         <div className="pricingHeader">
           <p className="sectionKicker">Pricing</p>
-          <h2>Simple one-time access.</h2>
+          <h2>Simple pricing, like software used to be.</h2>
           <p>
-            Choose a one-time access plan and use Go without monthly subscription
-            stress. All prices are listed in Indian Rupees.
+            Pay once. Use Go without monthly subscription stress. All prices are in
+            Indian Rupees.
           </p>
         </div>
 
         {isSignedIn && (
           <div className="currentPlanCard">
             <div>
-              <p className="sectionKicker">Current access</p>
+              <p className="sectionKicker">Current plan</p>
               <h3>
                 {billingStatusLoading
                   ? "Checking plan..."
@@ -1777,23 +2089,30 @@ function App() {
                   }
                   key={plan.id}
                 >
-                  {plan.badge && <span className="pricingBadge">{plan.badge}</span>}
+                  {plan.badge && <span className="pricingBadge pricingBadgeRight">{plan.badge}</span>}
 
                   <h3>{plan.name}</h3>
 
                   <div className="priceLine">
-                    <strong>{plan.price}</strong>
-                    <span>{plan.duration}</span>
+                    <div className="priceAmountRow">
+                      {plan.originalPrice && (
+                        <span className="originalPrice">{plan.originalPrice}</span>
+                      )}
+                      <strong>{plan.price}</strong>
+                    </div>
+
+                    <div className="priceMetaRow">
+                      <span>{plan.duration}</span>
+                      {plan.save && <span className="saveTextInline">{plan.save}</span>}
+                    </div>
                   </div>
 
-                  {plan.save && <p className="saveText">{plan.save}</p>}
-
                   <ul>
-                    <li>Unlimited permanent links under fair use</li>
-                    <li>Full analytics history for every link</li>
-                    <li>Extended temporary links</li>
-                    <li>QR code generation</li>
-                    <li>Future AI insights</li>
+                    <li>Unlimited premium links</li>
+                    <li>Complete analytics history</li>
+                    <li>Advanced expiry controls</li>
+                    <li>Priority support</li>
+                    <li>Future premium upgrades</li>
                   </ul>
 
                   <button
@@ -1803,7 +2122,7 @@ function App() {
                         : "outlineButton pricingButton"
                     }
                     disabled={Boolean(billingLoadingPlan)}
-                    onClick={() => buyPlan(plan.id)}
+                    onClick={() => choosePlan(plan.id)}
                   >
                     {!isSignedIn
                       ? "Sign in to choose"
@@ -1814,16 +2133,15 @@ function App() {
                 </article>
               ))}
             </div>
-
           </>
         )}
 
         {isSignedIn && hasPaidPlan() && (
           <div className="paidPlanNotice">
-            <strong>Your Go access is active.</strong>
+            <strong>You have full Go access.</strong>
             <span>
-              Your paid plan includes unlimited permanent links under fair use,
-              full analytics history, extended temporary links, and future AI insights.
+              Your paid plan unlocks unlimited permanent links under fair use, full
+              analytics history, premium temporary links, and future AI insights.
             </span>
           </div>
         )}
@@ -1837,7 +2155,7 @@ function App() {
                 <p className="sectionKicker">Account</p>
                 <h2>Account settings</h2>
                 <p className="helperText">
-                  Manage your profile, sign-in method, password, email, and account deletion.
+                  Manage your login, email, password, and account deletion.
                 </p>
               </div>
 
@@ -1851,7 +2169,7 @@ function App() {
 
             <div className="accountSettingsGrid">
               <article className="settingsCard">
-                <h3>Account profile</h3>
+                <h3>Profile</h3>
                 <p>Signed in as</p>
                 <strong>{auth.user?.profile.email || "Unknown email"}</strong>
                 <span>{auth.user?.profile.sub}</span>
@@ -1868,13 +2186,13 @@ function App() {
                   <h3>{isGoogleUser ? "Google account" : "Social login account"}</h3>
                   <p>
                     You signed in with {identityProvider}. Your password and email
-                    are managed by {identityProvider}.
+                    are managed by {identityProvider}, not Go.
                   </p>
 
                   <p>
-                    You can still delete your Go account below. This removes your
-                    links, analytics, and billing record, but it does not delete your
-                    {identityProvider} account.
+                    You can still delete your Go account below. Deleting your Go
+                    account will remove your Go links, analytics, and billing record,
+                    but it will not delete your {identityProvider} account.
                   </p>
 
                   {isGoogleUser && (
@@ -1892,7 +2210,7 @@ function App() {
                 <>
                   <article className="settingsCard">
                     <h3>Change password</h3>
-                    <p>Available for accounts created with email and password.</p>
+                    <p>Password changes are available for email/password accounts.</p>
 
                     <input
                       type="password"
@@ -1929,8 +2247,8 @@ function App() {
                   <article className="settingsCard">
                     <h3>Change email</h3>
                     <p>
-                      Enter a new email address. A verification code will be sent
-                      before the change is completed.
+                      Enter a new email. Cognito will send a verification code before
+                      the change is completed.
                     </p>
 
                     <input
@@ -1972,14 +2290,14 @@ function App() {
               <article className="settingsCard dangerSettingsCard">
                 <h3>Delete account</h3>
                 <p>
-                  This permanently deletes your Go account, managed links, click
-                  history, and billing record. This action cannot be undone.
+                  This permanently deletes your Go account, links, click history, and
+                  billing record. This action cannot be undone.
                 </p>
 
                 {isExternalProviderUser && (
                   <p>
                     This will not delete your {identityProvider} account. It only
-                    removes your Go by 17Bytes account data.
+                    deletes your Go by 17Bytes account data.
                   </p>
                 )}
 
@@ -2011,7 +2329,7 @@ function App() {
             <div>
               <p className="sectionKicker">QR Code</p>
               <h2>{qrCode}</h2>
-              <p className="helperText">Preview, scan, or download this QR code as an SVG file.</p>
+              <p className="helperText">Scan or download this QR code as SVG.</p>
             </div>
 
             <div className="inlineActions">
@@ -2157,7 +2475,7 @@ function App() {
               <h3>Full analytics history</h3>
               <p>
                 View complete click history, long-term patterns, and detailed
-                analytics for every managed link.
+                analytics for every link.
               </p>
 
               {analyticsLimited && (
@@ -2199,7 +2517,7 @@ function App() {
                 <h3>Full click history is locked</h3>
                 <p>
                   {analyticsUpgradeMessage ||
-                    "Free accounts can view the latest 10 clicks per link. Upgrade to unlock full click history, long-term insights, exports, and future AI analysis."}
+                    "Free users can view the latest 10 clicks per link. Upgrade to unlock full analytics history, long-term insights, exports, and future AI analysis."}
                 </p>
               </div>
 
@@ -2244,50 +2562,51 @@ function App() {
         </section>
       )}
 
+      {renderFooterPage()}
+
       <footer className="specialFooter">
-        <div className="footerMain">
+        <div className="footerMain compactFooterMain">
           <div className="footerBrand">
             <a className="footerLogo" href="/">
-              <img src={logo} alt="Go by 17Bytes logo" />
-              <span>Go by 17Bytes</span>
-            </a>
+              <img src={logo} /><span>Go by 17Bytes</span></a>
+            <p><strong>Shorten, Manage and Share links with custom aliases, QR codes, temporary expiry, analytics, and dashboard controls.</strong></p>
+            </div>
 
-            <p>
-              Create, share, and manage short links with QR codes, custom aliases, and analytics.
-            </p>
-          </div>
-
-          <div className="footerLinks">
+          <div className="footerLinks professionalFooterLinks">
             <div>
-              <strong>Product</strong>
-              <a href="#shorten">Shorten</a>
-              <a href="#features">Features</a>
-              <a href="#pricing">Pricing</a>
-              {isSignedIn && (
-                <button className="footerTextButton" onClick={() => setShowLinkManager(true)}>
-                  Manage links
-                </button>
-              )}
+              <strong>LEGAL</strong>
+              <button className="footerTextButton" onClick={() => openFooterPage("terms")}>TERMS</button>
+              <button className="footerTextButton" onClick={() => openFooterPage("privacy")}>PRIVACY</button>
+              <button className="footerTextButton" onClick={() => openFooterPage("refunds")}>REFUNDS</button>
             </div>
 
             <div>
-              <strong>About us</strong>
-              <span>17Bytes</span>
+              <strong>TRUST</strong>
+              <button className="footerTextButton" onClick={() => openFooterPage("acceptableUse")}>USE POLICY</button>
+              <button className="footerTextButton" onClick={() => openFooterPage("abuse")}>REPORT ABUSE</button>
+              <button className="footerTextButton" onClick={() => openFooterPage("contact")}>CONTACT</button>
+            </div>
+
+            <div>
+              <strong>Company</strong>
+              <a href="https://17bytes.com/about" target="_blank" rel="noreferrer">ABOUT US</a>
+              <a href="https://17bytes.com/projects/go" target="_blank" rel="noreferrer">GO</a>
+              <a href="https://17bytes.com" target="_blank" rel="noreferrer">17BYTES</a>
             </div>
           </div>
 
           <div className="footerBadge xcenturyFooterBadge">
             <span>CERTIFIED BY</span>
-            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} alt="xCentury certification" />
-            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} alt="xCentury certification" />
+            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} />
+            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} />
           </div>
         </div>
 
         <div className="footerBottom">
-        <span>
-          © {new Date().getFullYear() === 2026 ? "2026" : `2026–${new Date().getFullYear()}`}{" "}
-          Go by 17Bytes. All rights reserved.
-        </span>
+          <span>
+            © {new Date().getFullYear() === 2026 ? "2026" : `2026 – ${new Date().getFullYear()}`} {" "}
+            Go by 17Bytes. All rights reserved.
+          </span>
         </div>
       </footer>
     </main>

@@ -2494,3 +2494,406 @@ footer + .pricingNote,
     margin-top: 34px !important;
   }
 }
+/* Pricing badge position fix: show only the Lifetime badge on the right */
+.pricingCard {
+  position: relative;
+}
+
+.pricingBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: fit-content;
+  max-width: calc(100% - 36px);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.pricingCard h3 {
+  padding-right: 104px;
+}
+
+@media (max-width: 560px) {
+  .pricingBadge {
+    top: 16px;
+    right: 16px;
+  }
+
+  .pricingCard h3 {
+    padding-right: 96px;
+  }
+}
+/* Pricing discount display */
+.pricingCard {
+  position: relative;
+}
+
+.pricingBadgeRight {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 2;
+}
+
+.priceAmountRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.originalPrice {
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: 900;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  opacity: 0.72;
+}
+
+.priceMetaRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.saveTextInline {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 107, 0, 0.28);
+  border-radius: 999px;
+  color: #c2410c;
+  background: #ffedd5;
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.bitlyShell.dark .saveTextInline {
+  color: #ffffff;
+  background: rgba(255, 107, 0, 0.16);
+  border-color: rgba(255, 107, 0, 0.34);
+}
+
+.bitlyShell.dark .originalPrice {
+  color: #a3a3a3;
+}
+
+/* Hide old separate discount text if any old CSS/content remains */
+.saveText {
+  display: none !important;
+}
+
+@media (max-width: 760px) {
+  .pricingBadgeRight {
+    position: static;
+    justify-self: start;
+    margin-bottom: -4px;
+  }
+}
+/* Pricing card button alignment fix */
+
+.pricingGrid {
+  align-items: stretch !important;
+}
+
+.pricingCard {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 460px !important;
+}
+
+.pricingCard ul {
+  flex: 1 !important;
+  margin-bottom: 24px !important;
+}
+
+.pricingButton {
+  margin-top: auto !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
+
+/* Keeps the Lifetime badge on the right without affecting card height */
+.highlightedPricingCard .pricingBadge,
+.pricingCard .pricingBadge {
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+}
+
+/* Give badge enough room so it does not collide with Lifetime heading */
+.highlightedPricingCard h3 {
+  padding-right: 120px !important;
+}
+
+@media (max-width: 900px) {
+  .pricingCard {
+    min-height: 430px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .pricingCard {
+    min-height: unset !important;
+  }
+
+  .pricingButton {
+    margin-top: 20px !important;
+  }
+}
+
+
+/* Professional footer documents and compact footer links */
+.compactFooterMain {
+  grid-template-columns: 1.05fr 1.35fr 0.95fr !important;
+  align-items: stretch !important;
+}
+
+.professionalFooterLinks {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 18px !important;
+}
+
+.professionalFooterLinks div {
+  min-width: 0;
+}
+
+.footerTextButton {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.footerTextButton:hover,
+.professionalFooterLinks a:hover {
+  color: var(--primary);
+}
+
+.footerPageSection {
+  width: min(1180px, calc(100% - 32px));
+  margin: 58px auto 0;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 12%, transparent), transparent 34%),
+    var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.bitlyShell.dark .footerPageSection {
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.14), transparent 34%),
+    #050505;
+}
+
+.footerPageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.footerPageHeader h2 {
+  margin: 8px 0;
+  color: var(--text);
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.footerPageHeader p:not(.sectionKicker) {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.footerPageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.footerPageCard {
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface-2);
+}
+
+.footerPageCard h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.footerPageCard p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 980px) {
+  .compactFooterMain {
+    grid-template-columns: 1fr !important;
+  }
+
+  .professionalFooterLinks {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .professionalFooterLinks,
+  .footerPageGrid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .footerPageHeader {
+    flex-direction: column;
+  }
+
+  .footerPageHeader .outlineButton {
+    width: 100%;
+  }
+
+  .footerPageSection {
+    padding: 22px;
+  }
+}
+
+
+/* Footer capitalization and popup pages */
+.professionalFooterLinks a,
+.professionalFooterLinks .footerTextButton {
+  text-transform: capitalize !important;
+}
+
+.professionalFooterLinks strong {
+  text-transform: uppercase !important;
+}
+
+.footerPageOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 28px 18px;
+  background: rgba(0, 0, 0, 0.68);
+  backdrop-filter: blur(12px);
+  overflow: auto;
+}
+
+.footerPagePopup {
+  width: min(980px, 100%) !important;
+  max-height: min(760px, calc(100vh - 56px));
+  margin: 0 !important;
+  overflow: auto;
+}
+
+.footerPagePopup .footerPageHeader {
+  align-items: flex-start;
+}
+
+.footerPagePopup .footerPageGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 700px) {
+  .footerPageOverlay {
+    padding: 14px;
+    place-items: start center;
+  }
+
+  .footerPagePopup {
+    max-height: calc(100vh - 28px);
+  }
+
+  .footerPagePopup .footerPageGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Footer font consistency fix */
+
+.footerMain,
+.footerMain a,
+.footerMain button,
+.footerMain span,
+.footerMain p,
+.footerMain strong {
+  font-family: inherit !important;
+}
+
+.footerLinks strong,
+.footerBadge span {
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+.footerLinks a,
+.footerLinks button,
+.footerLinks span,
+.footerTextButton {
+  color: var(--muted) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em !important;
+  text-decoration: none !important;
+  text-transform: capitalize !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  text-align: left !important;
+  cursor: pointer !important;
+}
+
+.footerLinks a:hover,
+.footerLinks button:hover,
+.footerTextButton:hover {
+  color: var(--primary) !important;
+}
+
+.footerLogo span {
+  font-size: 23px !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.05em !important;
+}
+
+.footerBrand p {
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1.7 !important;
+  letter-spacing: 0 !important;
+}
+
+.footerBottom {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+}
