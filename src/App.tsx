@@ -2614,10 +2614,10 @@ function App() {
             </div>
 
             <div>
-              <strong>Company</strong>
-              <a href="https://17bytes.com/about" target="_blank" rel="noreferrer">ABOUT US</a>
-              <a href="https://17bytes.com/projects/go" target="_blank" rel="noreferrer">GO</a>
+              <strong>ABOUT US</strong>
               <a href="https://17bytes.com" target="_blank" rel="noreferrer">17BYTES</a>
+              <a href="https://xcentury.17bytes.com" target="_blank" rel="noreferrer">XCENTURY</a>
+              <a href="https://shivasish.17bytes.com" target="_blank" rel="noreferrer">SHIVASISH KHAN</a>
             </div>
           </div>
 
