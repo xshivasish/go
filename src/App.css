@@ -5,7 +5,48 @@
 * {
   box-sizing: border-box;
 }
+/* Page background: black ends, theme glow in the middle */
 
+html,
+body,
+#root {
+  background: #000000 !important;
+}
+
+.bitlyShell {
+  min-height: 100dvh;
+  background: #000000 !important;
+}
+
+.bitlyShell.light {
+  background:
+    linear-gradient(
+      to bottom,
+      #000000 0px,
+      #000000 110px,
+      rgba(255, 107, 0, 0.16) 260px,
+      #fff7ed 460px,
+      #fff7ed calc(100% - 460px),
+      rgba(255, 107, 0, 0.12) calc(100% - 260px),
+      #000000 calc(100% - 90px),
+      #000000 100%
+    ) !important;
+}
+
+.bitlyShell.dark {
+  background:
+    linear-gradient(
+      to bottom,
+      #000000 0px,
+      #000000 110px,
+      rgba(255, 107, 0, 0.18) 280px,
+      #050505 460px,
+      #050505 calc(100% - 460px),
+      rgba(255, 107, 0, 0.14) calc(100% - 260px),
+      #000000 calc(100% - 90px),
+      #000000 100%
+    ) !important;
+}
 html {
   scroll-behavior: smooth;
 }
@@ -11908,4 +11949,150 @@ footer + .pricingNote,
   .cleanAccountPill {
     display: none !important;
   }
+}
+/* Header background fade behind header only */
+
+.bitlyShell {
+  position: relative;
+}
+
+.topNav {
+  position: relative;
+  z-index: 2;
+}
+
+.topNav::before {
+  content: "";
+  position: absolute;
+  left: -32px;
+  right: -32px;
+  top: -28px;
+  height: 150px;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 40px;
+}
+
+.bitlyShell.light .topNav::before {
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.14), transparent 42%),
+    linear-gradient(
+      to bottom,
+      #fff7ed 0%,
+      rgba(255, 247, 237, 0.88) 48%,
+      rgba(255, 247, 237, 0) 100%
+    );
+}
+
+.bitlyShell.dark .topNav::before {
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.16), transparent 42%),
+    linear-gradient(
+      to bottom,
+      #000000 0%,
+      rgba(0, 0, 0, 0.88) 48%,
+      rgba(0, 0, 0, 0) 100%
+    );
+}
+/* Page background: black ends fading into a connected saffron middle */
+
+html,
+body,
+#root {
+  background: #000000 !important;
+}
+
+.bitlyShell {
+  min-height: 100dvh;
+  background: #000000 !important;
+}
+
+.bitlyShell.light {
+  background:
+    linear-gradient(
+      to bottom,
+      #000000 0%,
+      #000000 4%,
+      rgba(255, 107, 0, 0.22) 14%,
+      #fff7ed 24%,
+      #fff7ed 76%,
+      rgba(255, 107, 0, 0.22) 86%,
+      #000000 96%,
+      #000000 100%
+    ) !important;
+}
+
+.bitlyShell.dark {
+  background:
+    linear-gradient(
+      to bottom,
+      #000000 0%,
+      #000000 4%,
+      rgba(255, 107, 0, 0.24) 14%,
+      #050505 24%,
+      #050505 76%,
+      rgba(255, 107, 0, 0.22) 86%,
+      #000000 96%,
+      #000000 100%
+    ) !important;
+}
+/* Page background:
+   Light mode = light ends + saffron middle
+   Dark mode = black ends + saffron/dark middle
+*/
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+.bitlyShell {
+  min-height: 100dvh;
+}
+
+/* Light mode: light top/bottom, connected saffron middle */
+.bitlyShell.light,
+.bitlyShell:not(.dark) {
+  background:
+    linear-gradient(
+      to bottom,
+      #fff7ed 0%,
+      #fff7ed 5%,
+      rgba(255, 107, 0, 0.20) 15%,
+      #fff1df 25%,
+      #fff1df 75%,
+      rgba(255, 107, 0, 0.20) 85%,
+      #fff7ed 95%,
+      #fff7ed 100%
+    ) !important;
+}
+
+/* Dark mode: black top/bottom, connected dark middle with saffron fade */
+.bitlyShell.dark {
+  background:
+    linear-gradient(
+      to bottom,
+      #000000 0%,
+      #000000 5%,
+      rgba(255, 107, 0, 0.22) 15%,
+      #050505 25%,
+      #050505 75%,
+      rgba(255, 107, 0, 0.20) 85%,
+      #000000 95%,
+      #000000 100%
+    ) !important;
+}
+
+/* Prevent mobile browser bottom/overscroll color mismatch */
+html:has(.bitlyShell.light),
+body:has(.bitlyShell.light),
+body:has(.bitlyShell.light) #root {
+  background: #fff7ed !important;
+}
+
+html:has(.bitlyShell.dark),
+body:has(.bitlyShell.dark),
+body:has(.bitlyShell.dark) #root {
+  background: #000000 !important;
 }
