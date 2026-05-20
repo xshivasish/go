@@ -11077,3 +11077,799 @@ footer + .pricingNote,
     display: none !important;
   }
 }
+/* Final fix: hide plan label before it collides with toggle */
+
+.topNav,
+.cleanTopNav,
+.mobileCleanTopNav {
+  overflow: hidden !important;
+}
+
+.cleanBrand,
+.mobileBrand,
+.brand {
+  min-width: 0 !important;
+  flex: 0 1 auto !important;
+  overflow: hidden !important;
+}
+
+.cleanBrand span,
+.mobileBrand span,
+.brand span {
+  white-space: nowrap !important;
+}
+
+.navActions,
+.cleanNavActions,
+.mobileNavActions {
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+  min-width: max-content !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* Hide every possible plan text class when space starts getting tight */
+@media (max-width: 1320px) {
+  .headerPlanText,
+  .brandPlanText,
+  .planText,
+  .lifetimeText,
+  .headerLifetimeText,
+  .brandLifetimeText,
+  .planLabel,
+  .headerPlanLabel {
+    display: none !important;
+  }
+
+  .brandDivider,
+  .headerBrandDivider,
+  .planDivider,
+  .lifetimeDivider {
+    display: none !important;
+  }
+}
+
+/* If your plan text is the second text span inside the brand, hide that too */
+@media (max-width: 1320px) {
+  .cleanBrand span:nth-of-type(2),
+  .mobileBrand span:nth-of-type(2),
+  .brand span:nth-of-type(2) {
+    display: none !important;
+  }
+}
+
+/* Keep the toggle and buttons the same size */
+.themeSwitch,
+.settingsHeaderButton,
+.signOutHeaderButton {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  flex-shrink: 0 !important;
+}
+
+.themeSwitch {
+  width: 86px !important;
+  min-width: 86px !important;
+  flex-basis: 86px !important;
+}
+
+.themeSwitchTrack {
+  width: 86px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+}
+
+.themeSwitchThumb {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+}
+
+.themeSwitchDark .themeSwitchThumb {
+  transform: translateX(44px) !important;
+}
+
+/* Tablet: compact controls */
+@media (max-width: 980px) {
+  .cleanAccountPill,
+  .accountPill {
+    display: none !important;
+  }
+
+  .settingsHeaderButton,
+  .signOutHeaderButton {
+    min-width: 92px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+  }
+
+  .themeSwitch {
+    width: 76px !important;
+    min-width: 76px !important;
+    flex-basis: 76px !important;
+  }
+
+  .themeSwitchTrack {
+    width: 76px !important;
+  }
+
+  .themeSwitchDark .themeSwitchThumb {
+    transform: translateX(34px) !important;
+  }
+}
+/* Final responsive plan label fix */
+
+.headerPlanText,
+.brandPlanText,
+.planText,
+.lifetimeText,
+.headerLifetimeText,
+.brandLifetimeText,
+.planLabel,
+.headerPlanLabel,
+.cleanBrand span:nth-of-type(2),
+.mobileBrand span:nth-of-type(2),
+.brand span:nth-of-type(2) {
+  display: inline-flex !important;
+}
+
+/* Keep the divider visible while plan text is visible */
+.brandDivider,
+.headerBrandDivider,
+.planDivider,
+.lifetimeDivider {
+  display: inline-block !important;
+}
+
+/* Only hide plan name when space is actually tight */
+@media (max-width: 1080px) {
+  .headerPlanText,
+  .brandPlanText,
+  .planText,
+  .lifetimeText,
+  .headerLifetimeText,
+  .brandLifetimeText,
+  .planLabel,
+  .headerPlanLabel,
+  .cleanBrand span:nth-of-type(2),
+  .mobileBrand span:nth-of-type(2),
+  .brand span:nth-of-type(2) {
+    display: none !important;
+  }
+
+  .brandDivider,
+  .headerBrandDivider,
+  .planDivider,
+  .lifetimeDivider {
+    display: none !important;
+  }
+}
+
+/* If the email pill is visible, hide it first before hiding Lifetime */
+@media (max-width: 1180px) {
+  .cleanAccountPill,
+  .accountPill {
+    display: none !important;
+  }
+}
+
+/* Keep left and right sides from colliding */
+.cleanTopNav,
+.mobileCleanTopNav,
+.topNav {
+  overflow: hidden !important;
+}
+
+.cleanBrand,
+.mobileBrand,
+.brand {
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+}
+
+.cleanNavActions,
+.mobileNavActions,
+.navActions {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+}
+/* Header priority fix: keep Lifetime before email */
+
+.cleanBrand,
+.mobileBrand,
+.brand {
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+}
+
+.headerPlanText,
+.brandPlanText,
+.planText,
+.lifetimeText,
+.headerLifetimeText,
+.brandLifetimeText,
+.planLabel,
+.headerPlanLabel,
+.cleanBrand span:nth-of-type(2),
+.mobileBrand span:nth-of-type(2),
+.brand span:nth-of-type(2) {
+  display: inline-flex !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Hide email first when space gets tight */
+@media (max-width: 1280px) {
+  .cleanAccountPill,
+  .accountPill {
+    display: none !important;
+  }
+}
+
+/* Hide Lifetime only later, when space is much tighter */
+@media (max-width: 980px) {
+  .headerPlanText,
+  .brandPlanText,
+  .planText,
+  .lifetimeText,
+  .headerLifetimeText,
+  .brandLifetimeText,
+  .planLabel,
+  .headerPlanLabel,
+  .cleanBrand span:nth-of-type(2),
+  .mobileBrand span:nth-of-type(2),
+  .brand span:nth-of-type(2) {
+    display: none !important;
+  }
+
+  .brandDivider,
+  .headerBrandDivider,
+  .planDivider,
+  .lifetimeDivider {
+    display: none !important;
+  }
+}
+
+/* Keep right controls protected */
+.cleanNavActions,
+.mobileNavActions,
+.navActions {
+  margin-left: auto !important;
+  flex-shrink: 0 !important;
+  min-width: max-content !important;
+}
+/* FINAL HEADER PRIORITY FIX:
+   Lifetime appears before email, hides only when truly tight.
+*/
+
+.cleanTopNav,
+.mobileCleanTopNav,
+.topNav {
+  overflow: hidden !important;
+}
+
+/* Header layout */
+.cleanTopNav {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+}
+
+/* Brand area */
+.cleanBrand,
+.mobileBrand,
+.brand {
+  min-width: max-content !important;
+  max-width: max-content !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+/* Go text */
+.cleanBrand span:first-of-type,
+.mobileBrand span:first-of-type,
+.brand span:first-of-type {
+  display: inline-flex !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: unset !important;
+}
+
+/* Lifetime / plan text visible by default */
+.headerPlanText,
+.brandPlanText,
+.planText,
+.lifetimeText,
+.headerLifetimeText,
+.brandLifetimeText,
+.planLabel,
+.headerPlanLabel,
+.cleanBrand span:nth-of-type(2),
+.mobileBrand span:nth-of-type(2),
+.brand span:nth-of-type(2) {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* Divider visible by default */
+.brandDivider,
+.headerBrandDivider,
+.planDivider,
+.lifetimeDivider {
+  display: inline-block !important;
+}
+
+/* Email has lower priority than Lifetime */
+.cleanAccountPill,
+.accountPill {
+  flex-shrink: 1 !important;
+}
+
+/* Hide email first */
+@media (max-width: 1280px) {
+  .cleanAccountPill,
+  .accountPill {
+    display: none !important;
+  }
+}
+
+/* Hide Lifetime only when space is actually tight */
+@media (max-width: 980px) {
+  .headerPlanText,
+  .brandPlanText,
+  .planText,
+  .lifetimeText,
+  .headerLifetimeText,
+  .brandLifetimeText,
+  .planLabel,
+  .headerPlanLabel,
+  .cleanBrand span:nth-of-type(2),
+  .mobileBrand span:nth-of-type(2),
+  .brand span:nth-of-type(2) {
+    display: none !important;
+  }
+
+  .brandDivider,
+  .headerBrandDivider,
+  .planDivider,
+  .lifetimeDivider {
+    display: none !important;
+  }
+}
+
+/* Keep right controls protected */
+.cleanNavActions,
+.mobileNavActions,
+.navActions {
+  justify-self: end !important;
+  margin-left: auto !important;
+  min-width: max-content !important;
+  flex-shrink: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+
+/* =========================================================
+   ABSOLUTE FINAL HEADER RESET - Go by 17Bytes
+   This block intentionally overrides all older header patches.
+   ========================================================= */
+.topNav,
+.topNav.cleanTopNav,
+.topNav.mobileCleanTopNav {
+  width: min(1180px, calc(100% - 32px)) !important;
+  max-width: 1180px !important;
+  min-height: 72px !important;
+  margin: 0 auto 36px !important;
+  padding: 14px 20px !important;
+  display: grid !important;
+  grid-template-columns: max-content minmax(16px, 1fr) max-content !important;
+  align-items: center !important;
+  gap: 14px !important;
+  overflow: hidden !important;
+  border-radius: 999px !important;
+}
+
+.desktopLinks,
+.cleanNavLinks,
+.headerTaglineNav {
+  display: none !important;
+}
+
+.brand,
+.cleanBrand,
+.mobileBrand,
+.brand.cleanBrand,
+.brand.mobileBrand {
+  grid-column: 1 !important;
+  justify-self: start !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+.brand img,
+.cleanBrand img,
+.mobileBrand img,
+.brand.cleanBrand img,
+.brand.mobileBrand img {
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 42px !important;
+  border-radius: 12px !important;
+  object-fit: contain !important;
+}
+
+.brand span:first-of-type,
+.cleanBrand span:first-of-type,
+.mobileBrand span:first-of-type,
+.brand.cleanBrand span:first-of-type,
+.brand.mobileBrand span:first-of-type {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  width: auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  padding: 0 4px 0 0 !important;
+}
+
+/* Plan pill: visible only while there is generous room */
+.headerPlanText,
+.brandPlanText,
+.planText,
+.lifetimeText,
+.headerLifetimeText,
+.brandLifetimeText,
+.planLabel,
+.headerPlanLabel,
+.brand span:nth-of-type(2),
+.cleanBrand span:nth-of-type(2),
+.mobileBrand span:nth-of-type(2) {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  border: 1px solid rgba(255, 107, 0, 0.34) !important;
+  border-radius: 999px !important;
+  color: var(--primary) !important;
+  background: rgba(255, 107, 0, 0.1) !important;
+  font-size: 13px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+.brandDivider,
+.headerBrandDivider,
+.planDivider,
+.lifetimeDivider {
+  display: inline-block !important;
+}
+
+.navActions,
+.cleanNavActions,
+.mobileNavActions,
+.navActions.cleanNavActions,
+.navActions.mobileNavActions {
+  grid-column: 3 !important;
+  justify-self: end !important;
+  margin-left: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  min-width: auto !important;
+  max-width: none !important;
+  width: auto !important;
+  flex: none !important;
+  flex-shrink: 0 !important;
+  overflow: visible !important;
+}
+
+.accountPill,
+.cleanAccountPill {
+  display: none !important;
+}
+
+.themeSwitch,
+.settingsHeaderButton,
+.signOutHeaderButton,
+.fixedAuthButton {
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.themeSwitch {
+  width: 86px !important;
+  min-width: 86px !important;
+  max-width: 86px !important;
+  flex: 0 0 86px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.themeSwitchTrack {
+  width: 86px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+}
+
+.themeSwitchThumb {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  transition: transform 180ms ease !important;
+}
+
+.themeSwitchDark .themeSwitchThumb {
+  transform: translateX(44px) !important;
+}
+
+.settingsHeaderButton {
+  width: 112px !important;
+  min-width: 112px !important;
+  max-width: 112px !important;
+  flex: 0 0 112px !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+.signOutHeaderButton,
+.fixedAuthButton {
+  width: 118px !important;
+  min-width: 118px !important;
+  max-width: 118px !important;
+  flex: 0 0 118px !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 950 !important;
+}
+
+@media (max-width: 1080px) {
+  .headerPlanText,
+  .brandPlanText,
+  .planText,
+  .lifetimeText,
+  .headerLifetimeText,
+  .brandLifetimeText,
+  .planLabel,
+  .headerPlanLabel,
+  .brand span:nth-of-type(2),
+  .cleanBrand span:nth-of-type(2),
+  .mobileBrand span:nth-of-type(2),
+  .brandDivider,
+  .headerBrandDivider,
+  .planDivider,
+  .lifetimeDivider {
+    display: none !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .topNav,
+  .topNav.cleanTopNav,
+  .topNav.mobileCleanTopNav {
+    width: calc(100% - 20px) !important;
+    min-height: 58px !important;
+    padding: 9px !important;
+    gap: 7px !important;
+    grid-template-columns: max-content minmax(6px, 1fr) max-content !important;
+    border-radius: 20px !important;
+  }
+
+  .brand img,
+  .cleanBrand img,
+  .mobileBrand img {
+    width: 32px !important;
+    height: 32px !important;
+    flex-basis: 32px !important;
+  }
+
+  .brand span:first-of-type,
+  .cleanBrand span:first-of-type,
+  .mobileBrand span:first-of-type {
+    font-size: 19px !important;
+  }
+
+  .navActions,
+  .cleanNavActions,
+  .mobileNavActions {
+    gap: 6px !important;
+  }
+
+  .themeSwitch,
+  .settingsHeaderButton,
+  .signOutHeaderButton,
+  .fixedAuthButton {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+  }
+
+  .themeSwitch {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    flex-basis: 60px !important;
+  }
+
+  .themeSwitchTrack {
+    width: 60px !important;
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  .themeSwitchThumb {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    font-size: 12px !important;
+  }
+
+  .themeSwitchDark .themeSwitchThumb {
+    transform: translateX(24px) !important;
+  }
+
+  .settingsHeaderButton {
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    flex-basis: 76px !important;
+    font-size: 12px !important;
+  }
+
+  .signOutHeaderButton,
+  .fixedAuthButton {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    flex-basis: 80px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .topNav,
+  .topNav.cleanTopNav,
+  .topNav.mobileCleanTopNav {
+    width: calc(100% - 14px) !important;
+    padding: 8px !important;
+    gap: 5px !important;
+  }
+
+  .brand img,
+  .cleanBrand img,
+  .mobileBrand img {
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+  }
+
+  .brand span:first-of-type,
+  .cleanBrand span:first-of-type,
+  .mobileBrand span:first-of-type {
+    display: none !important;
+  }
+
+  .themeSwitch {
+    width: 54px !important;
+    min-width: 54px !important;
+    max-width: 54px !important;
+    flex-basis: 54px !important;
+  }
+
+  .themeSwitchTrack {
+    width: 54px !important;
+  }
+
+  .themeSwitchDark .themeSwitchThumb {
+    transform: translateX(18px) !important;
+  }
+
+  .settingsHeaderButton {
+    width: 66px !important;
+    min-width: 66px !important;
+    max-width: 66px !important;
+    flex-basis: 66px !important;
+    font-size: 10px !important;
+  }
+
+  .signOutHeaderButton,
+  .fixedAuthButton {
+    width: 70px !important;
+    min-width: 70px !important;
+    max-width: 70px !important;
+    flex-basis: 70px !important;
+    font-size: 10px !important;
+  }
+}
+/* Show email again on wide screens, hide it before layout gets tight */
+
+@media (min-width: 1281px) {
+  .accountPill,
+  .cleanAccountPill {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 42px !important;
+    max-width: 220px !important;
+    padding: 0 16px !important;
+    border-radius: 999px !important;
+    color: #ffb86b !important;
+    background:
+      radial-gradient(circle at top left, rgba(255, 107, 0, 0.22), transparent 42%),
+      linear-gradient(135deg, rgba(255, 107, 0, 0.12), rgba(10, 10, 10, 0.95)) !important;
+    border: 1px solid rgba(255, 107, 0, 0.36) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 12px 28px rgba(255, 107, 0, 0.1) !important;
+    font-size: 14px !important;
+    font-weight: 850 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .bitlyShell.light .accountPill,
+  .bitlyShell.light .cleanAccountPill {
+    color: #9a3412 !important;
+    background:
+      linear-gradient(135deg, rgba(255, 237, 213, 0.96), rgba(255, 247, 237, 0.9)) !important;
+    border-color: rgba(255, 107, 0, 0.3) !important;
+  }
+}
+
+/* Hide email before it can squeeze the header */
+@media (max-width: 1280px) {
+  .accountPill,
+  .cleanAccountPill {
+    display: none !important;
+  }
+}
