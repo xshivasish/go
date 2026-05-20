@@ -17,7 +17,43 @@ body {
 a {
   color: inherit;
 }
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+  background: #fff7ed;
+}
+html:has(.bitlyShell.dark),
+body:has(.bitlyShell.dark),
+body:has(.bitlyShell.dark) #root {
+  background: #000000;
+}
+.bitlyShell.light {
+  background: #fff7ed;
+}
 
+.bitlyShell.dark {
+  background: #000000;
+}
+html:has(.bitlyShell.light),
+body:has(.bitlyShell.light),
+body:has(.bitlyShell.light) #root {
+  background: #fff7ed;
+}
+body {
+  min-height: 100%;
+  margin: 0;
+  background: #fff7ed;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100vh;
+  background: #fff7ed;
+}
+
+.bitlyShell {
+  min-height: 100dvh;
+}
 .bitlyShell {
   --bg: #ffffff;
   --surface: #ffffff;
@@ -25,8 +61,8 @@ a {
   --text: #17233c;
   --muted: #5c667a;
   --border: #dfe3ea;
-  --primary: #0052cc;
-  --primary-hover: #003d99;
+  --primary: #ffffff;
+  --primary-hover: #ffffff;
   --orange: #ff6b00;
   --danger: #d92d20;
   --success: #0f9f6e;
