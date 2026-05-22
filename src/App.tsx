@@ -577,6 +577,7 @@ function App() {
 
   useEffect(() => {
     if (!auth.isAuthenticated || !token) return;
+    if (!billingStatusLoaded || billingStatusLoading) return;
 
     const pendingPlan = sessionStorage.getItem(PENDING_PLAN_KEY) as
       | BillingPlan["id"]
@@ -586,10 +587,25 @@ function App() {
 
     sessionStorage.removeItem(PENDING_PLAN_KEY);
 
-    window.setTimeout(() => {
+    if (hasPaidPlan()) {
+      showSuccess(`${currentPlan?.planName || "Your premium plan"} is already active.`);
+      return;
+    }
+
+    const checkoutTimer = window.setTimeout(() => {
       buyPlan(pendingPlan);
-    }, 600);
-  }, [auth.isAuthenticated, token]);
+    }, 300);
+
+    return () => window.clearTimeout(checkoutTimer);
+  }, [
+    auth.isAuthenticated,
+    token,
+    billingStatusLoaded,
+    billingStatusLoading,
+    currentPlan?.plan,
+    currentPlan?.planName,
+    currentPlan?.status,
+  ]);
 
   function getIdentityProvider() {
     const profile = auth.user?.profile as Record<string, unknown> | undefined;
@@ -764,9 +780,9 @@ function App() {
   }
 
   async function choosePlan(planId: BillingPlan["id"]) {
-    if (!token) {
+    if (!auth.isAuthenticated || !token) {
       sessionStorage.setItem(PENDING_PLAN_KEY, planId);
-      await startSignIn(planId);
+      await startSignIn();
       return;
     }
 
@@ -798,9 +814,9 @@ function App() {
   }
 
   async function buyPlan(planId: BillingPlan["id"]) {
-    if (!token) {
+    if (!auth.isAuthenticated || !token) {
       sessionStorage.setItem(PENDING_PLAN_KEY, planId);
-      await startSignIn(planId);
+      await startSignIn();
       return;
     }
 
