@@ -12096,3 +12096,56 @@ body:has(.bitlyShell.dark),
 body:has(.bitlyShell.dark) #root {
   background: #000000 !important;
 }
+/* Scalable header email pill */
+
+.accountPill,
+.cleanAccountPill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 42px !important;
+  min-width: 96px !important;
+  width: clamp(120px, 18vw, 240px) !important;
+  max-width: 240px !important;
+  padding: 0 16px !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+
+  color: #ffb86b !important;
+  background:
+    radial-gradient(circle at top left, rgba(255, 107, 0, 0.22), transparent 42%),
+    linear-gradient(135deg, rgba(255, 107, 0, 0.12), rgba(10, 10, 10, 0.95)) !important;
+  border: 1px solid rgba(255, 107, 0, 0.36) !important;
+
+  font-size: clamp(11px, 0.95vw, 14px) !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  flex: 1 1 clamp(120px, 18vw, 240px) !important;
+}
+
+.bitlyShell.light .accountPill,
+.bitlyShell.light .cleanAccountPill {
+  color: #9a3412 !important;
+  background:
+    linear-gradient(135deg, rgba(255, 237, 213, 0.96), rgba(255, 247, 237, 0.9)) !important;
+  border-color: rgba(255, 107, 0, 0.3) !important;
+}
+
+/* Keep action side able to shrink safely */
+.navActions,
+.cleanNavActions,
+.mobileNavActions {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Hide email before it can crush the header */
+@media (max-width: 1180px) {
+  .accountPill,
+  .cleanAccountPill {
+    display: none !important;
+  }
+}
