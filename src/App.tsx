@@ -4,6 +4,7 @@ import { buildLogoutUrl } from "./auth";
 import logo from "./assets/0.png";
 import xcenturyWhite from "./assets/5.png";
 import xcenturyBlack from "./assets/6.png";
+import razorpayLogo from "./assets/0.1.png";
 import "./App.css";
 
 type Theme = "light" | "dark";
@@ -143,6 +144,7 @@ declare global {
       amount: number;
       currency: string;
       name: string;
+      image?: string;
       description: string;
       order_id: string;
       prefill?: {
@@ -855,14 +857,15 @@ function App() {
         key: order.keyId,
         amount: order.amount,
         currency: order.currency,
-        name: "Go by 17Bytes",
+        name: "Go",
+        image: razorpayLogo,
         description: order.planName,
         order_id: order.orderId,
         prefill: {
           email: order.prefill?.email || auth.user?.profile.email || "",
         },
         theme: {
-          color: "#ff6b00",
+          color: "#FF671F",
         },
         handler: async (paymentResponse) => {
           try {
