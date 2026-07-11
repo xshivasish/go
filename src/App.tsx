@@ -148,7 +148,18 @@ declare global {
       description: string;
       order_id: string;
       prefill?: {
+        name?: string;
         email?: string;
+        contact?: string;
+      };
+      readonly?: {
+        name?: boolean;
+        email?: boolean;
+        contact?: boolean;
+      };
+      hidden?: {
+        email?: boolean;
+        contact?: boolean;
       };
       theme?: {
         color: string;
@@ -777,8 +788,14 @@ function App() {
   }
 
   function shouldShowPricingCards() {
-    if (isSignedIn && (!billingStatusLoaded || billingStatusLoading)) return false;
-    return !isSignedIn || !hasPaidPlan();
+    // Never show pricing cards to guests
+    if (!isSignedIn) return false;
+
+    // Wait until billing status is loaded
+    if (!billingStatusLoaded || billingStatusLoading) return false;
+
+    // Show pricing only to signed-in users without a paid plan
+    return !hasPaidPlan();
   }
 
   async function choosePlan(planId: BillingPlan["id"]) {
@@ -853,6 +870,10 @@ function App() {
         }),
       })) as RazorpayOrderResponse;
 
+      const userEmail = String(
+        order.prefill?.email || auth.user?.profile.email || ""
+      ).trim();
+
       const checkout = new window.Razorpay({
         key: order.keyId,
         amount: order.amount,
@@ -862,7 +883,15 @@ function App() {
         description: order.planName,
         order_id: order.orderId,
         prefill: {
-          email: order.prefill?.email || auth.user?.profile.email || "",
+          email: userEmail,
+        },
+        readonly: {
+          email: Boolean(userEmail),
+          contact: true,
+        },
+        hidden: {
+          email: Boolean(userEmail),
+          contact: true,
         },
         theme: {
           color: "#FF671F",
