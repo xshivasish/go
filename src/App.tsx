@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { buildLogoutUrl } from "./auth";
 import logo from "./assets/0.png";
-import xcenturyWhite from "./assets/5.png";
-import xcenturyBlack from "./assets/6.png";
 import razorpayLogo from "./assets/0.1.png";
 import wavyBackground from "./assets/wavy.jpg";
 import "./App.css";
