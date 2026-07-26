@@ -5,6 +5,7 @@ import logo from "./assets/0.png";
 import xcenturyWhite from "./assets/5.png";
 import xcenturyBlack from "./assets/6.png";
 import razorpayLogo from "./assets/0.1.png";
+import wavyBackground from "./assets/wavy.jpg";
 import "./App.css";
 
 type Theme = "light" | "dark";
@@ -1568,7 +1569,10 @@ function App() {
   }
 
   return (
-    <main className={`bitlyShell ${theme}`}>
+    <main
+      className={`bitlyShell ${theme}`}
+      style={{ ["--bg-image" as string]: `url(${wavyBackground})` }}
+    >
       <header className="topNav cleanTopNav mobileCleanTopNav">
         <a className="brand cleanBrand mobileBrand" href="/">
           <img src={logo} />
@@ -1762,29 +1766,6 @@ function App() {
             Copy
           </button>
         </section>
-      )}
-
-      {!isSignedIn && (
-        <section className="features" id="features">
-        <article>
-          <span>01</span>
-          <h3>Create links fast</h3>
-          <p>Shorten long links instantly with a clean, simple interface.</p>
-        </article>
-
-        <article>
-          <span>02</span>
-          <h3>Use custom aliases</h3>
-          <p>Signed-in users can create branded and memorable permanent links.</p>
-        </article>
-
-        <article>
-          <span>03</span>
-          <h3>Measure every click</h3>
-          <p>Track clicks, referrers, devices, browsers, timestamps, and QR usage.</p>
-        </article>
-      </section>
-
       )}
 
       {isSignedIn && (
