@@ -2958,7 +2958,6 @@ function App() {
               <button className="footerTextButton" onClick={() => openFooterPage("privacy")}>PRIVACY</button>
               <button className="footerTextButton" onClick={() => openFooterPage("refunds")}>REFUNDS</button>
             </div>
-
             <div>
               <strong>TRUST</strong>
               <button className="footerTextButton" onClick={() => openFooterPage("acceptableUse")}>USE POLICY</button>
@@ -2969,15 +2968,7 @@ function App() {
             <div>
               <strong>ABOUT US</strong>
               <a href="https://17bytes.com" target="_blank" rel="noreferrer">17BYTES</a>
-              <a href="https://xcentury.17bytes.com" target="_blank" rel="noreferrer">XCENTURY</a>
-              <a href="https://shivasish.17bytes.com" target="_blank" rel="noreferrer">SHIVASISH KHAN</a>
             </div>
-          </div>
-
-          <div className="footerBadge xcenturyFooterBadge">
-            <span>CERTIFIED BY</span>
-            <img className="xcenturyFooterLogo xcenturyLogoDark" src={xcenturyWhite} />
-            <img className="xcenturyFooterLogo xcenturyLogoLight" src={xcenturyBlack} />
           </div>
         </div>
 
