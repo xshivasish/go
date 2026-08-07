@@ -2,12 +2,7 @@ import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { buildLogoutUrl } from "./auth";
 import wavyBackground from "./assets/wavy.jpg";
-<<<<<<< HEAD
 import type { BillingPlan, ShortenResponse } from "./types";
-=======
-import type { BillingPlan, FooterPageKey, ShortenResponse } from "./types";
-import { footerPages } from "./constants/footerPages";
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 import { freePermanentLinkLimit, PENDING_PLAN_KEY } from "./constants/misc";
 import { formatAccess } from "./lib/format";
 
@@ -32,10 +27,6 @@ import { PricingSection } from "./components/PricingSection";
 import { AccountSettingsModal } from "./components/AccountSettingsModal";
 import { QrCodeModal } from "./components/QrCodeModal";
 import { AnalyticsModal } from "./components/AnalyticsModal";
-<<<<<<< HEAD
-=======
-import { FooterPageModal } from "./components/FooterPageModal";
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 import { SiteFooter } from "./components/SiteFooter";
 import { ToastViewport } from "./components/Toast";
 import { ConfirmDialog } from "./components/ConfirmDialog";
@@ -52,10 +43,6 @@ function App() {
   const [createdLink, setCreatedLink] = useState<ShortenResponse | null>(null);
   const [showAccountSettings, setShowAccountSettings] = useState(false);
   const [showLinkManager, setShowLinkManager] = useState(false);
-<<<<<<< HEAD
-=======
-  const [footerPage, setFooterPage] = useState<FooterPageKey | null>(null);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 
   const token = auth.user?.id_token;
   const accessToken = auth.user?.access_token;
@@ -119,7 +106,7 @@ function App() {
   async function handleDeleteLink(code: string) {
     const confirmed = await confirm({
       title: "Delete this link?",
-      description: `Permanently delete ${code.toLowerCase()}? This will remove it from your dashboard and delete its click history.`,
+      description: `Permanently delete ${code.toLowerCase()}? This will remove it from your dashboard and delete its click history. are you sure?`,
       confirmLabel: "Delete link",
       danger: true,
     });
@@ -256,19 +243,10 @@ function App() {
         />
       )}
 
-<<<<<<< HEAD
       <SiteFooter />
 
       <ToastViewport toast={toast} onDismiss={dismissToast} />
 
-=======
-      {footerPage && <FooterPageModal page={footerPages[footerPage]} onClose={() => setFooterPage(null)} />}
-
-      <SiteFooter onOpenPage={setFooterPage} />
-
-      <ToastViewport toast={toast} onDismiss={dismissToast} />
-
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
       {confirmState && (
         <ConfirmDialog {...confirmState} onConfirm={handleConfirm} onCancel={handleCancel} />
       )}
