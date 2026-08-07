@@ -1,0 +1,506 @@
+/* ---------- Creator studio ---------- */
+
+.premiumLinkSection {
+  max-width: var(--content-width);
+  margin: 0 auto var(--space-6);
+  padding: 0 var(--space-5);
+}
+
+.creatorStudioShell {
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-card);
+}
+
+.creatorStudioHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.creatorStudioHeader h2 {
+  font-size: 24px;
+  margin: 6px 0;
+}
+
+.creatorStudioHeader p {
+  max-width: 520px;
+  font-size: 14px;
+}
+
+.premiumHeaderAction {
+  flex-shrink: 0;
+}
+
+.creatorStudioMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.creatorMetricCard {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.creatorMetricCard span {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.creatorMetricCard strong {
+  font-family: var(--font-display);
+  font-size: 24px;
+  color: var(--text-primary);
+}
+
+.creatorMetricCard small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.primaryMetricCard {
+  border-color: rgba(255, 122, 26, 0.35);
+  background: linear-gradient(160deg, rgba(255, 122, 26, 0.12), rgba(255, 122, 26, 0.02));
+}
+
+.creatorStudioGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.creatorControlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.creatorPanelBlock {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+  border: 1px solid var(--border-subtle);
+}
+
+.creatorModeCards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.creatorModeCard {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.creatorModeCard span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.creatorModeCard strong {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.creatorModeCard small {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.creatorModeCard:hover {
+  border-color: var(--border-strong);
+}
+
+.creatorModeCard.active {
+  border-color: var(--brand-500);
+  background: rgba(255, 122, 26, 0.08);
+}
+
+.creatorModeCard.active span {
+  color: var(--brand-400);
+}
+
+.creatorInfoList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.creatorInfoList strong {
+  display: block;
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.creatorInfoList span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.freeUsageCard {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.freeUsageCard strong {
+  display: block;
+  font-size: 15px;
+  margin: 4px 0;
+}
+
+.freeUsageCard p {
+  font-size: 12.5px;
+}
+
+.creatorFormPanel {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+  border: 1px solid var(--border-subtle);
+}
+
+.creatorFormTopline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.creatorFormTopline h3 {
+  font-size: 19px;
+  margin: 4px 0;
+}
+
+.creatorFormTopline p {
+  max-width: 440px;
+  font-size: 13px;
+}
+
+.creatorStatusPill {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.creatorFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+
+.creatorFieldGroup label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.creatorFieldGroup small {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.creatorTwoColumnFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.creatorExpiryPanel {
+  margin-bottom: var(--space-4);
+}
+
+.creatorSubmitPanel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.creatorSubmitPanel strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.creatorSubmitPanel p {
+  max-width: 420px;
+  font-size: 12.5px;
+}
+
+.premiumCreateButton {
+  flex-shrink: 0;
+}
+
+.lockedTemporaryCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.lockedTemporaryCard > div {
+  flex: 1;
+}
+
+.lockedTemporaryCard strong {
+  display: block;
+  font-size: 13.5px;
+  margin-bottom: 3px;
+}
+
+.lockedTemporaryCard p {
+  font-size: 12px;
+}
+
+.lockedTemporaryCard .lockIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 122, 26, 0.12);
+  flex-shrink: 0;
+}
+
+/* ---------- Custom expiry clock ---------- */
+
+.customExpiryPicker {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-glass);
+  border: 1px solid var(--border-subtle);
+}
+
+.customExpiryTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.customExpiryTop p {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.customExpiryTop span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--brand-400);
+  white-space: nowrap;
+}
+
+.customExpiryGrid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.customDatePanel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.periodToggle {
+  display: flex;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+.periodToggle button {
+  flex: 1;
+  background: transparent;
+  padding: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.periodToggle button.active {
+  background: var(--brand-gradient);
+  color: #1a0e04;
+}
+
+.manualTimeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.manualTimeRow span {
+  color: var(--text-muted);
+}
+
+.analogClockPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.analogClockFace {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-subtle);
+}
+
+.analogClockFace .clockCenter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-400);
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+.clockHandHour,
+.clockHandMinute {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: bottom center;
+  border-radius: 4px;
+  background: var(--text-primary);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+.clockHandHour {
+  width: 4px;
+  height: 52px;
+}
+
+.clockHandMinute {
+  width: 3px;
+  height: 76px;
+  background: var(--brand-400);
+}
+
+.analogClockFace button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.analogClockFace button.active {
+  background: var(--brand-gradient);
+  color: #1a0e04;
+}
+
+.minutePicker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.minutePicker button {
+  padding: 7px 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-solid);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.minutePicker button.active {
+  background: var(--brand-gradient);
+  border-color: transparent;
+  color: #1a0e04;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+  .creatorStudioMetrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .creatorStudioGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .creatorStudioShell {
+    padding: var(--space-4);
+  }
+
+  .creatorStudioMetrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .creatorStudioHeader {
+    flex-direction: column;
+  }
+
+  .creatorTwoColumnFields {
+    grid-template-columns: 1fr;
+  }
+
+  .customExpiryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .creatorSubmitPanel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .creatorSubmitPanel button {
+    width: 100%;
+  }
+}
