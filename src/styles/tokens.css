@@ -1,0 +1,94 @@
+/* ==========================================================================
+   Design tokens — one source of truth for color, type, spacing, and motion.
+   Brand accent (orange/gold) and the wavy hero image are the existing Go
+   identity; everything else is a refined, consistent system around them.
+   ========================================================================== */
+
+:root {
+  /* Type */
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Brand */
+  --brand-500: #ff7a1a;
+  --brand-400: #ff9642;
+  --brand-300: #ffb457;
+  --brand-gradient: linear-gradient(135deg, var(--brand-500), var(--brand-300));
+
+  /* Feedback colors (shared across themes) */
+  --success-500: #34d399;
+  --success-600: #16a34a;
+  --danger-500: #fb7185;
+  --danger-600: #e11d48;
+  --warning-500: #fbbf24;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-base: 220ms;
+
+  /* Layout */
+  --content-width: 1180px;
+  --header-height: 76px;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg-base: #08070a;
+  --bg-scrim: linear-gradient(180deg, rgba(6, 5, 8, 0.88) 0%, rgba(6, 5, 8, 0.94) 45%, rgba(6, 5, 8, 0.98) 100%);
+
+  --surface-glass: rgba(255, 255, 255, 0.055);
+  --surface-glass-strong: rgba(255, 255, 255, 0.09);
+  --surface-solid: #131019;
+  --surface-raised: #17131d;
+
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text-primary: #f6f3ef;
+  --text-secondary: #c9c1d6;
+  --text-muted: #8f87a0;
+
+  --shadow-card: 0 20px 50px -24px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 30px 70px -20px rgba(0, 0, 0, 0.75);
+}
+
+.light {
+  color-scheme: light;
+
+  --bg-base: #faf7f2;
+  --bg-scrim: linear-gradient(180deg, rgba(250, 247, 242, 0.9) 0%, rgba(250, 247, 242, 0.96) 45%, rgba(250, 247, 242, 0.99) 100%);
+
+  --surface-glass: rgba(255, 255, 255, 0.62);
+  --surface-glass-strong: rgba(255, 255, 255, 0.82);
+  --surface-solid: #ffffff;
+  --surface-raised: #ffffff;
+
+  --border-subtle: rgba(20, 14, 30, 0.08);
+  --border-strong: rgba(20, 14, 30, 0.14);
+
+  --text-primary: #1c1620;
+  --text-secondary: #4c4356;
+  --text-muted: #857c92;
+
+  --shadow-card: 0 20px 45px -28px rgba(40, 24, 10, 0.28);
+  --shadow-pop: 0 30px 60px -22px rgba(40, 24, 10, 0.32);
+}
