@@ -23,13 +23,18 @@ export function PricingSection({
 
   if (!show && !showCurrentPlanCard) return null;
 
-  return (
-    <section className="pricingSection" id="pricing">
+  // Signed-in users are already inside the dashboard, so pricing is shown as
+  // a compact card that matches the dashboard, instead of a full marketing
+  // section bolted directly underneath it.
+  const content = (
+    <>
       {show && (
         <div className="pricingHeader">
           <p className="sectionKicker">Pricing</p>
-          <h2>Simple pricing, like software used to be.</h2>
-          <p>Pay once. Use Go without monthly subscription stress. All prices are in Indian Rupees.</p>
+          {isSignedIn ? <h3>Upgrade your plan</h3> : <h2>Simple pricing, like software used to be.</h2>}
+          {!isSignedIn && (
+            <p>Pay once. Use Go without monthly subscription stress. All prices are in Indian Rupees.</p>
+          )}
         </div>
       )}
 
@@ -83,6 +88,20 @@ export function PricingSection({
           ))}
         </div>
       )}
+    </>
+  );
+
+  if (isSignedIn) {
+    return (
+      <section className="pricingSection pricingSectionDashboard" id="pricing">
+        <div className="pricingDashboardCard">{content}</div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="pricingSection" id="pricing">
+      {content}
     </section>
   );
 }

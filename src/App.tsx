@@ -106,7 +106,7 @@ function App() {
   async function handleDeleteLink(code: string) {
     const confirmed = await confirm({
       title: "Delete this link?",
-      description: `Permanently delete ${code.toLowerCase()}? This will remove it from your dashboard and delete its click history. Are you sure?`,
+      description: `Permanently delete ${code.toLowerCase()}? This will remove it from your dashboard and delete its click history.`,
       confirmLabel: "Delete link",
       danger: true,
     });
