@@ -12,17 +12,12 @@
   border-radius: var(--radius-lg);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-<<<<<<< HEAD
   padding: var(--space-4) var(--space-5);
-=======
-  padding: var(--space-6);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   box-shadow: var(--shadow-card);
 }
 
 .creatorStudioHeader {
   display: flex;
-<<<<<<< HEAD
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
@@ -36,22 +31,6 @@
 
 .creatorStudioHeader .sectionKicker {
   margin-bottom: 2px;
-=======
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
-}
-
-.creatorStudioHeader h2 {
-  font-size: 24px;
-  margin: 6px 0;
-}
-
-.creatorStudioHeader p {
-  max-width: 520px;
-  font-size: 14px;
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .premiumHeaderAction {
@@ -61,7 +40,6 @@
 .creatorStudioMetrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-<<<<<<< HEAD
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
@@ -75,40 +53,17 @@
 
 .creatorMetricCard span {
   font-size: 10.5px;
-=======
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
-}
-
-.creatorMetricCard {
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.creatorMetricCard span {
-  font-size: 11.5px;
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   color: var(--text-muted);
 }
 
 .creatorMetricCard strong {
   font-family: var(--font-display);
-<<<<<<< HEAD
   font-size: 19px;
-=======
-  font-size: 24px;
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   color: var(--text-primary);
 }
 
 .creatorMetricCard small {
-<<<<<<< HEAD
   font-size: 11px;
-=======
-  font-size: 12px;
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   color: var(--text-muted);
 }
 
@@ -119,32 +74,19 @@
 
 .creatorStudioGrid {
   display: grid;
-<<<<<<< HEAD
   grid-template-columns: 240px 1fr;
   gap: var(--space-3);
-=======
-  grid-template-columns: 300px 1fr;
-  gap: var(--space-5);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   align-items: start;
 }
 
 .creatorControlPanel {
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: var(--space-3);
 }
 
 .creatorPanelBlock {
   padding: var(--space-3);
-=======
-  gap: var(--space-4);
-}
-
-.creatorPanelBlock {
-  padding: var(--space-4);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   border-radius: var(--radius-md);
   background: var(--surface-solid);
   border: 1px solid var(--border-subtle);
@@ -153,25 +95,15 @@
 .creatorModeCards {
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: 6px;
-=======
-  gap: var(--space-2);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .creatorModeCard {
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: 2px;
   text-align: left;
   padding: 10px var(--space-3);
-=======
-  gap: 3px;
-  text-align: left;
-  padding: var(--space-3);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   border-radius: var(--radius-sm);
   background: transparent;
   border: 1px solid var(--border-subtle);
@@ -210,42 +142,15 @@
   color: var(--brand-400);
 }
 
-<<<<<<< HEAD
 .freeUsageCard {
   padding: var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-=======
-.creatorInfoList {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.creatorInfoList strong {
-  display: block;
-  font-size: 13px;
-  color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.creatorInfoList span {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.freeUsageCard {
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .freeUsageCard strong {
   display: block;
-<<<<<<< HEAD
   font-size: 13.5px;
   margin: 2px 0;
 }
@@ -257,18 +162,6 @@
 
 .creatorFormPanel {
   padding: var(--space-4);
-=======
-  font-size: 15px;
-  margin: 4px 0;
-}
-
-.freeUsageCard p {
-  font-size: 12.5px;
-}
-
-.creatorFormPanel {
-  padding: var(--space-5);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
   border-radius: var(--radius-md);
   background: var(--surface-solid);
   border: 1px solid var(--border-subtle);
@@ -276,7 +169,6 @@
 
 .creatorFormTopline {
   display: flex;
-<<<<<<< HEAD
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -286,22 +178,6 @@
 .creatorFormTopline h3 {
   font-size: 16px;
   margin: 1px 0 0;
-=======
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-5);
-}
-
-.creatorFormTopline h3 {
-  font-size: 19px;
-  margin: 4px 0;
-}
-
-.creatorFormTopline p {
-  max-width: 440px;
-  font-size: 13px;
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .creatorStatusPill {
@@ -318,13 +194,8 @@
 .creatorFieldGroup {
   display: flex;
   flex-direction: column;
-<<<<<<< HEAD
   gap: 5px;
   margin-bottom: var(--space-3);
-=======
-  gap: 6px;
-  margin-bottom: var(--space-4);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .creatorFieldGroup label {
@@ -341,51 +212,21 @@
 .creatorTwoColumnFields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-<<<<<<< HEAD
   gap: var(--space-3);
 }
 
 .creatorExpiryPanel {
   margin-bottom: var(--space-3);
-=======
-  gap: var(--space-4);
-}
-
-.creatorExpiryPanel {
-  margin-bottom: var(--space-4);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .creatorSubmitPanel {
   display: flex;
-<<<<<<< HEAD
   justify-content: flex-end;
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--border-subtle);
 }
 
-=======
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-top: var(--space-5);
-  padding-top: var(--space-5);
-  border-top: 1px solid var(--border-subtle);
-}
-
-.creatorSubmitPanel strong {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 3px;
-}
-
-.creatorSubmitPanel p {
-  max-width: 420px;
-  font-size: 12.5px;
-}
-
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 .premiumCreateButton {
   flex-shrink: 0;
 }
@@ -394,11 +235,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
-<<<<<<< HEAD
   padding: var(--space-3);
-=======
-  padding: var(--space-4);
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
 }
 
 .lockedTemporaryCard > div {
