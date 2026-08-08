@@ -308,58 +308,49 @@
   font-size: 13px;
 }
 
-.paymentBadgesRow {
-  margin-top: var(--space-4);
-}
-
-.paymentBadgesLabel {
-  display: block;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: var(--space-2);
-}
-
-.paymentBadges {
+.footerTop {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
   flex-wrap: wrap;
-  gap: var(--space-2);
 }
 
-.paymentBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px 5px 5px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-glass);
-  border: 1px solid var(--border-subtle);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.paymentMarkChip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 22px;
-  border-radius: 6px;
-  background: #ffffff;
+.footerPoweredBy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-3);
   flex-shrink: 0;
 }
 
-.paymentMarkIcon {
-  width: 15px;
-  height: 15px;
+.footerPoweredByLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
-.paymentMarkImg {
-  width: 30px;
-  height: auto;
+.footerPoweredByLogos {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.footerPoweredByLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+}
+
+.footerPoweredByLogo img {
+  height: 15px;
+  width: auto;
   display: block;
 }
 
@@ -374,6 +365,15 @@
 /* ---------- Responsive ---------- */
 
 @media (max-width: 760px) {
+  .footerTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footerPoweredBy {
+    align-items: flex-start;
+  }
+
   .topNav {
     margin: var(--space-3) var(--space-3) 0;
     padding: 8px 8px 8px 16px;
