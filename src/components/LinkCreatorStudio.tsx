@@ -115,15 +115,7 @@ export function LinkCreatorStudio({
         <div className="creatorStudioHeader">
           <div>
             <p className="sectionKicker">Link creator</p>
-<<<<<<< HEAD
             <h2>Create a link</h2>
-=======
-            <h2>Create, organize, and track your links</h2>
-            <p>
-              Build permanent links for pages that stay live, or temporary links for campaigns
-              and limited-time sharing. Everything you create here stays editable from Links.
-            </p>
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
           </div>
 
           <button className="outlineButton premiumHeaderAction" onClick={onOpenLinkManager}>
@@ -174,11 +166,7 @@ export function LinkCreatorStudio({
                 >
                   <span>Permanent</span>
                   <strong>Always-on link</strong>
-<<<<<<< HEAD
                   <small>Never expires.</small>
-=======
-                  <small>Use for websites, profiles, products, resumes, docs, and pages that should not expire.</small>
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
                 </button>
 
                 <button
@@ -188,54 +176,17 @@ export function LinkCreatorStudio({
                 >
                   <span>Temporary</span>
                   <strong>Time-limited link</strong>
-<<<<<<< HEAD
                   <small>Auto-expires after the time you set.</small>
-=======
-                  <small>Use for campaigns, offers, event files, private sharing, and links that should close automatically.</small>
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
                 </button>
               </div>
             </div>
 
-<<<<<<< HEAD
-=======
-            <div className="creatorPanelBlock">
-              <span className="miniLabel">What you get</span>
-
-              <div className="creatorInfoList">
-                <div>
-                  <strong>Custom aliases</strong>
-                  <span>Create readable short links that people can remember.</span>
-                </div>
-                <div>
-                  <strong>QR codes</strong>
-                  <span>Generate downloadable QR codes from the Links manager.</span>
-                </div>
-                <div>
-                  <strong>Analytics</strong>
-                  <span>{hasPaidPlan ? "View complete click history and long-term performance." : "Free users can view the latest 10 clicks per link."}</span>
-                </div>
-                <div>
-                  <strong>Expiry controls</strong>
-                  <span>{hasPaidPlan ? "Use 30 days, 90 days, 1 year, or custom expiry." : "Use 1 hour, 6 hours, 24 hours, or 7 days for free."}</span>
-                </div>
-              </div>
-            </div>
-
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
             {!hasPaidPlan && (
               <div className="freeUsageCard">
                 <div>
                   <span className="miniLabel">Free plan usage</span>
                   <strong>{freePermanentLinksLeft} permanent links left</strong>
-<<<<<<< HEAD
                   <p>{permanentManagedLinks}/{freePermanentLinkLimit} used</p>
-=======
-                  <p>
-                    You have used {permanentManagedLinks} of {freePermanentLinkLimit} free permanent
-                    links. Temporary links up to 7 days are still available.
-                  </p>
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
                 </div>
                 <a className="outlineButton anchorButton" href="#pricing">
                   View upgrades
@@ -248,16 +199,7 @@ export function LinkCreatorStudio({
             <div className="creatorFormTopline">
               <div>
                 <span className="miniLabel">{linkMode === "temporary" ? "Temporary setup" : "Permanent setup"}</span>
-<<<<<<< HEAD
                 <h3>{linkMode === "temporary" ? "New temporary link" : "New permanent link"}</h3>
-=======
-                <h3>{linkMode === "temporary" ? "Create a temporary managed link" : "Create a permanent managed link"}</h3>
-                <p>
-                  {linkMode === "temporary"
-                    ? "Set a destination, optional alias, and expiry. The link will automatically stop working after the selected time."
-                    : "Set a destination, optional alias, title, and notes. You can edit or pause it later from Links."}
-                </p>
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
               </div>
               <span className="creatorStatusPill">{linkMode === "temporary" ? "Auto-expiry" : "No expiry"}</span>
             </div>
@@ -362,18 +304,6 @@ export function LinkCreatorStudio({
             </div>
 
             <div className="creatorSubmitPanel">
-<<<<<<< HEAD
-=======
-              <div>
-                <strong>Ready to create?</strong>
-                <p>
-                  {linkMode === "temporary"
-                    ? "After creation, you can copy the link, generate a QR code, view analytics, or delete it from Links."
-                    : "After creation, you can copy the link, edit details, generate a QR code, pause it, or view analytics from Links."}
-                </p>
-              </div>
-
->>>>>>> bdca268102e7abba19eac5893975cd5601d8ea8b
               <button className="primaryButton premiumCreateButton" disabled={!url || loading} onClick={handleCreate}>
                 {loading ? "Creating..." : linkMode === "temporary" ? "Create temporary link" : "Create permanent link"}
               </button>
